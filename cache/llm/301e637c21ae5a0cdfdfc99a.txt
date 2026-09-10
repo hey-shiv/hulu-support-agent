@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply acknowledges the customer's frustration, but doesn't provide a specific solution or reference to the historical evidence, making it less effective than it could be."
+}

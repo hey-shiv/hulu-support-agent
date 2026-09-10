@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply accurately references the same evidence and policy as previous responses, and provides a clear and direct answer to the customer's question."
+}

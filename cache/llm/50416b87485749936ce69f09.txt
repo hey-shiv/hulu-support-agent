@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply is mostly accurate, but it doesn't directly address the customer's question about the availability of Last Man Standing, and it doesn't mention expressing the customer's interest to the team."
+}

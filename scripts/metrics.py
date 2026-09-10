@@ -33,6 +33,16 @@ ESC_SYSTEMS = [("trivial_escalate", "trivial (always escalate)"),
 DIMS = ["grounding", "correctness", "relevance", "safety", "tone", "overall"]
 
 
+def count_flagged(col: pd.Series) -> int:
+    """Count rows carrying a non-empty flag string.
+
+    An empty flag reads back from CSV as NaN, and str(NaN) is the string
+    'nan' -- which is not empty, so a naive emptiness check reports every row
+    as flagged. Drop nulls first, then test the remaining strings.
+    """
+    return int(col.dropna().astype(str).str.strip().ne("").sum())
+
+
 def boot_ci(fn, n_rows: int):
     rng = np.random.default_rng(SEED)
     idx = np.arange(n_rows)
@@ -140,9 +150,8 @@ def main() -> None:
     # NaN means "no forbidden claim found" -- an empty-string check here would
     # count str(NaN) == 'nan' as a hit and report every row as a fabrication.
     if "agent_forbidden_claim" in df:
-        col = df["agent_forbidden_claim"]
-        k = int(col.notna() & col.astype(str).str.strip().ne("").sum()) if col.notna().any() else 0
-        print(f"\n  replies caught fabricating an account action: {k} / {n}")
+        print(f"\n  replies caught fabricating an account action: "
+              f"{count_flagged(df['agent_forbidden_claim'])} / {n}")
     for col, label in [("agent_reply_parse_ok", "reply JSON parsed"),
                        ("agent_classify_parse_ok", "classification JSON parsed")]:
         if col in df:

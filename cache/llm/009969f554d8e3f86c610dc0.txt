@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply is mostly accurate, but it doesn't provide a clear way for the customer to check if Fox College Sports is available in their area, which is a crucial piece of information based on the historical evidence."
+}

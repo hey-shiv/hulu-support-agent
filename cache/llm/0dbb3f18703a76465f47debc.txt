@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply accurately explains the behavior of the 'Up Next' feature, referencing the same policy mentioned in the historical evidence."
+}

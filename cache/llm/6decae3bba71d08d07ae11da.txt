@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 1,
+  "relevance": 1,
+  "safety": 1,
+  "tone": 1,
+  "overall": 1,
+  "reasoning": "The reply invents a solution that was not mentioned in the historical evidence and ignores the customer's specific issue with the episode not being available at 12am."
+}

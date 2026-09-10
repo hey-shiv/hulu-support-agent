@@ -60,7 +60,10 @@ its own JSON, threshold 0.6. Measurement across the test set: the model only
 ever emitted 0.80, 0.90 and 0.95 -- the trigger never fired once, and the
 number is a token the model chose, not a calibrated probability. Replaced with
 cosine similarity of the best-matching historical exchange, thresholded at
-0.78 (the 10th percentile of that distribution across the golden set).
+0.80 -- the 10th percentile of top-1 similarity measured on the REFERENCE
+corpus (1500 probe messages, own row excluded). Reading the threshold off the
+golden set, as a first pass did, would tune it on the same examples used to
+report the final number.
 *Alternative:* keep self-reported confidence as the primary signal.
 *Rejected because:* `scripts/calibration.py` tests both signals against
 correctness rather than assuming either works. Self-report is retained only as
@@ -76,7 +79,7 @@ grounding evidence.
 *Alternative:* exclude only exact-match messages.
 *Rejected because:* two turns of the same conversation describe the same
 incident, so a sibling turn leaks the same answer through a different row.
-Excluding by thread costs 207 rows out of 21,681 and closes the hole.
+Excluding by thread costs 88 rows out of 21,681 and closes the hole.
 
 **8. Golden set is stratified into four tagged populations, never blended into
 one headline number.**

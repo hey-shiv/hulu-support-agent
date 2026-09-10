@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly grounded in the evidence, but it doesn't explicitly state that they don't have the rights to stream the documentary, which is a crucial piece of information."
+}

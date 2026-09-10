@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly grounded in the evidence, but it's not entirely clear what 'content partners' refers to, and it doesn't match the specific tone of the 'around the corner' reply."
+}

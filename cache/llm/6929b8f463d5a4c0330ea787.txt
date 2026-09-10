@@ -1,0 +1,9 @@
+{
+  "grounding": 3,
+  "correctness": 4,
+  "relevance": 4,
+  "safety": 5,
+  "tone": 4,
+  "overall": 4,
+  "reasoning": "The reply provides general troubleshooting steps, but doesn't directly address the customer's concern about on-demand availability in their area."
+}

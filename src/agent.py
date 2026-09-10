@@ -117,8 +117,22 @@ Respond with JSON only: {{"reply": "<your reply>"}}"""
     }
 
 
+EMPTY_MESSAGE_RESULT = {
+    "intent": "other", "self_reported_confidence": 0.0, "classify_parse_ok": True,
+    "reply": "", "reply_parse_ok": True, "top_similarity": 0.0, "evidence": [],
+    "forbidden_claim": "", "escalate": True, "escalate_reason_code": "empty_message",
+    "escalate_reason": "Message contained no text to act on.",
+}
+
+
 def run_agent(message: str, vectors, pairs, k: int = 3) -> dict:
     """Full pipeline, returning every intermediate signal for auditing."""
+    # An empty message cannot be embedded -- the embedding endpoint returns no
+    # vector and retrieval raises IndexError. Escalate instead of crashing:
+    # there is nothing here to classify, ground, or answer.
+    if not strip_handles(message):
+        return {"message": message, **EMPTY_MESSAGE_RESULT}
+
     cls = classify(message)
     drafted = draft_reply(message, cls["intent"], vectors, pairs, k=k)
 

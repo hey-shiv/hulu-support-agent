@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 1,
+  "safety": 5,
+  "tone": 2,
+  "overall": 2,
+  "reasoning": "The reply contradicts the historical evidence by stating that season 2 is currently available, when in fact the evidence shows that it was expected to arrive in 2018, but no specific date was given."
+}

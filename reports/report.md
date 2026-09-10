@@ -15,14 +15,19 @@ vs. 0.362 for TF-IDF and 0.054 for majority-class.** Intervals do not overlap.
 **Three findings that argue against this system, which matter more than the
 headline:**
 
-1. **Reply generation does not beat copying the nearest historical reply.**
-   Paired difference +0.12, 95% CI [−0.10, +0.35] — contains zero. Retrieval
-   earns its place; the LLM generation step on top of it is not shown to.
+1. **Retrieval earns its place; the generation layer on top of it does not.**
+   Removing retrieval entirely costs 0.87 judge points (CI [+0.67, +1.08]) —
+   grounding is doing real work. But generating a reply does not beat simply
+   copying the nearest historical reply (+0.12, CI [−0.10, +0.35], contains
+   zero). The value is in the retrieval, not the LLM wrapped around it.
 2. **On mid-thread messages the agent is *worse* than TF-IDF** (0.190 vs
    0.240). Fluency becomes a liability when context is missing.
 3. **The model's self-reported confidence is worthless** — AUC 0.539 for
    predicting its own correctness. An earlier version of this system gated
    escalation on it.
+4. **The shipped retrieval depth is probably wrong.** k=1 significantly beats
+   the shipped k=3. Not acted on, because that was measured on the test set
+   and changing it would be tuning on the evaluation data.
 
 The most important sections here are §12 (why not to trust the headline) and
 §4 (two evaluation bugs found by attacking our own results — one of which
@@ -345,6 +350,34 @@ Fabricated-claim detections: 0/60 — the constrained prompt appears to be
 holding, though `judge_validity.py` confirms the detector fires correctly when
 a fabrication is deliberately injected.
 
+### Does retrieval earn its place? (`scripts/ablate_retrieval.py`)
+
+The system's central claim is that replies are grounded in Hulu's own history.
+That is untested until you remove the grounding. Same 60 messages, same judge,
+three configurations:
+
+| Config | Judge overall | Paired diff vs shipped k=3 | |
+|---|---:|---|---|
+| k=0 — no evidence at all | 4.017 | **+0.867** [+0.667, +1.083] | significant |
+| k=1 — one historical exchange | **4.983** | **−0.100** [−0.183, −0.017] | significant |
+| k=3 — shipped configuration | 4.883 | — | |
+
+**Retrieval is worth +0.87 over an ungrounded prompt**, with an interval far
+from zero. This is the one central claim of the architecture that survives its
+own test — and it sharpens the §10 finding: the value is in the *retrieval*,
+not in the generation layer wrapped around it.
+
+**k=1 significantly beats the shipped k=3.** Adding the 2nd and 3rd matches
+made replies slightly worse, consistent with dilution — those matches are less
+similar and pull the draft off-target.
+
+**We are not switching to k=1 on the strength of this.** That difference was
+measured on the same 60 examples used to report every other number here;
+changing the shipped configuration because of it would be test-set tuning, the
+exact practice avoided everywhere else in this project (see §4 on where the
+escalation threshold came from). It is recorded as a validated hypothesis
+requiring a proper dev set — see §13.
+
 ### Do the uncertainty signals work? (`scripts/calibration.py`)
 
 | Signal | Tested against | Result |
@@ -531,9 +564,10 @@ Ordered by what the evaluation above says is actually broken:
 5. **Pass conversation context** for mid-thread messages, converting failure
    mode 1 from "out of scope" into a solved case — worth 0.487 -> 0.673
    macro-F1 on the blended set.
-6. **Ablate retrieval** (k=0 vs k=1 vs k=3): does grounding actually earn its
-   place, or would the LLM score similarly with none? Currently unmeasured,
-   and it is the central claim of the system.
+6. **Re-test k=1 vs k=3 on a held-out dev set.** The ablation found k=1
+   significantly better than the shipped k=3, but on the test set — so acting
+   on it now would be tuning on the evaluation data. With more labelled
+   examples, split off a dev set, confirm there, and ship the winner.
 7. **Cost curve for escalation** — sweep the evidence threshold and plot
    automation rate against missed-escalation rate, so the operating point is
    chosen from an explicit cost ratio rather than a percentile.

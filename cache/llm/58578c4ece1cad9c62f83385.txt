@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply suggests a reasonable troubleshooting step, but doesn't directly address the customer's claim that their WiFi is fine and the issue is specific to Grey's Anatomy."
+}

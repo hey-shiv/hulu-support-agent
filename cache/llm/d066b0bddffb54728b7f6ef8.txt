@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply correctly identifies the possible locations of 'My Stuff' but doesn't explicitly reference the provided evidence, which suggests that 'My Stuff' is only available on supported devices."
+}

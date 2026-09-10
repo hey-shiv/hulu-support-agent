@@ -70,7 +70,23 @@ def take(pool: pd.DataFrame, n: int, seed: int) -> pd.DataFrame:
     return pool.sample(min(n, len(pool)), random_state=seed)
 
 
-def main() -> None:
+def main(confirm: bool = False) -> None:
+    # This script writes to the file holding hand-made labels. Running it by
+    # accident (a stray `make golden`, a mistyped target) appends unlabelled
+    # rows and quietly puts the evaluation set into a half-labelled state --
+    # which happened once, and was only recoverable because the labels were
+    # committed. Require an explicit flag rather than trusting call sites.
+    labelled_path = ROOT / "data" / "golden" / "golden_labelled.csv"
+    if labelled_path.exists() and not confirm:
+        existing = pd.read_csv(labelled_path)
+        n_lab = int(existing["intent"].astype(str).str.strip().ne("").sum())
+        raise SystemExit(
+            f"REFUSING TO RUN: {labelled_path.name} already holds {n_lab} "
+            f"hand-made labels.\nThis script appends UNLABELLED rows to that "
+            f"file. Re-run with --confirm if that is genuinely what you want,\n"
+            f"and commit the current labels first."
+        )
+
     pool = pd.read_parquet(ROOT / "data" / "processed" / "hulu_clustered.parquet")
     pool = pool.drop_duplicates("msg_clean").reset_index(drop=True)
 
@@ -137,4 +153,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--confirm", action="store_true",
+                    help="acknowledge that this appends unlabelled rows to the "
+                         "file containing hand-made labels")
+    main(**vars(ap.parse_args()))

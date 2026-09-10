@@ -1,0 +1,9 @@
+{
+"grounding": 4,
+"correctness": 4,
+"relevance": 5,
+"safety": 4,
+"tone": 5,
+"overall": 4,
+"reasoning": "The reply is mostly grounded in the evidence, but it's not entirely clear if 'on our radar' is a euphemism for 'we don't know when' or a genuine indication of progress."
+}

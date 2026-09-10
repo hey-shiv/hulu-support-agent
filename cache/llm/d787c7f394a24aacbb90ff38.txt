@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply accurately references the same link provided in the historical evidence and asks for additional information to better assist the customer, demonstrating a clear understanding of the issue and the company's policies."
+}

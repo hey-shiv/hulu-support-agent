@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly consistent with the tone and language used in the historical evidence, but it doesn't directly address the customer's request to skip the profile selection step."
+}

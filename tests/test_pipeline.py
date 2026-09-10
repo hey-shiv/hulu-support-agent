@@ -209,3 +209,53 @@ def test_no_golden_thread_appears_in_retrieval_index():
 def test_golden_set_has_no_duplicate_messages():
     gold = pd.read_csv(ROOT / "data" / "golden" / "golden_labelled.csv")
     assert gold["customer_msg"].duplicated().sum() == 0
+
+
+# --- Metric counting edge cases ---------------------------------------------
+
+def test_count_flagged_handles_nan_and_empty():
+    """An all-NaN column means zero flags, not every row flagged.
+
+    Regression: the original expression was `int(col.notna() & ....sum())`,
+    which is `Series & int`. It silently returned 0 while every value was NaN,
+    and raised TypeError the moment a real flag appeared -- i.e. it would only
+    have crashed once the fabrication detector actually fired.
+    """
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts"))
+    from metrics import count_flagged
+
+    assert count_flagged(pd.Series([np.nan, np.nan, np.nan])) == 0
+    assert count_flagged(pd.Series(["", "", ""])) == 0
+    assert count_flagged(pd.Series([np.nan, "I have issued your refund", np.nan])) == 1
+    assert count_flagged(pd.Series(["a", "b", np.nan, ""])) == 2
+
+
+def test_empty_message_escalates_instead_of_crashing():
+    """Regression: an empty message reached retrieval, where the embedding
+    endpoint returns no vector and indexing it raised IndexError -- one blank
+    message would take down the pipeline."""
+    from src.agent import run_agent
+    for msg in ["", "   ", "@hulu_support", "@hulu_support @115940  "]:
+        out = run_agent(msg, vectors=None, pairs=None)
+        assert out["escalate"] is True
+        assert out["escalate_reason_code"] == "empty_message"
+        assert out["reply"] == ""
+
+
+@pytest.mark.skipif(not (ROOT / "data" / "golden" / "golden_labelled.csv").exists(),
+                    reason="no golden set")
+def test_golden_set_is_fully_labelled():
+    """Canary for accidental re-sampling.
+
+    scripts/sample_golden.py appends unlabelled rows to this same file. When
+    that ran by accident, the first symptom was the leakage tests failing with
+    a confusing '140 examples leaked' -- because the newly appended rows were
+    in the index. This asserts the real problem directly.
+    """
+    gold = pd.read_csv(ROOT / "data" / "golden" / "golden_labelled.csv")
+    unlabelled = gold["intent"].isna().sum() + gold["intent"].astype(str).str.strip().eq("").sum()
+    assert unlabelled == 0, (
+        f"{unlabelled} unlabelled rows in the golden set -- sample_golden.py "
+        f"probably ran over it. Restore with: git checkout HEAD -- data/golden/")

@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply does not provide any specific steps or explanations, but it does not make any unsupported claims either."
+}

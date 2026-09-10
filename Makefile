@@ -1,6 +1,6 @@
 PY = .venv/bin/python
 
-.PHONY: help reproduce all test data brand cluster golden label index silver eval metrics calibration judge-validity rate agreement clean-cache
+.PHONY: help reproduce all test data brand cluster golden label index silver eval metrics calibration judge-validity ablation rate agreement clean-cache
 
 help:
 	@echo "make reproduce   - replay headline results from cache (no model calls, ~1 min)"
@@ -9,7 +9,7 @@ help:
 	@echo ""
 	@echo "stages: data brand cluster index silver eval metrics calibration judge-validity"
 	@echo ""
-	@echo "human-in-the-loop (not run by `all`):"
+	@echo "human-in-the-loop (not run by all):"
 	@echo "  golden  - draw more evaluation examples (appends unlabelled rows)"
 	@echo "  label   - hand-label them"
 	@echo "  rate    - blind-rate replies for judge agreement (NOT YET DONE)"
@@ -40,6 +40,7 @@ brand:
 cluster:
 	$(PY) scripts/taxonomy.py
 
+# Guarded: refuses to run over existing labels without --confirm.
 golden:
 	$(PY) scripts/sample_golden.py
 
@@ -61,6 +62,9 @@ calibration:
 
 judge-validity:
 	$(PY) scripts/judge_validity.py
+
+ablation:
+	$(PY) scripts/ablate_retrieval.py
 
 silver:
 	$(PY) scripts/make_silver.py

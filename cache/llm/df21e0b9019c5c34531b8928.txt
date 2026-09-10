@@ -1,0 +1,1 @@
+{"reply": "Sorry to hear that live playback is choppy. Could you please check your device and modem? Sometimes a quick reboot can help improve the video quality."}

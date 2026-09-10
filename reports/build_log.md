@@ -112,3 +112,41 @@ keypresses through the tool) before any real labelling happened. Fixed by
 checking membership against a tuple, `("y", "n")`, not a string. The lesson
 carried forward into this session's rebuild of the same tool, which used the
 tuple form from the first draft.
+
+---
+
+**9. `sample_golden.py` silently overwrote the hand-labelled evaluation set.**
+Discovered when two leakage tests failed with "140 golden examples leaked into
+the retrieval index" -- a confusing symptom, because the real problem was not
+leakage at all. `sample_golden.py` appends new unlabelled rows to
+`golden_labelled.csv`, the same file holding the human labels, so an
+accidental run put the evaluation set into a half-labelled 200-row state and
+the newly appended rows were legitimately in the index. Recoverable only
+because the labels had been committed.
+Fixes, all three: the script now refuses to run over an existing labelled file
+without `--confirm`; the `golden` target was removed from `make all` (it had
+been a prerequisite, which would have destroyed labels on any full rebuild);
+and a canary test asserts the golden set contains no unlabelled rows, so the
+next occurrence fails with the actual cause instead of a leakage red herring.
+
+**10. Backticks inside a Makefile `@echo` were shell command substitution.**
+`@echo "human-in-the-loop (not run by `all`):"` -- make hands each recipe line
+to a shell, which treats backticks as "run this and substitute the output".
+The help text was executing `all` as a command rather than printing it.
+Harmless here only because no command named `all` exists.
+
+**11. An empty customer message crashed the whole pipeline.**
+`run_agent("")` reached retrieval, where the embedding endpoint returns no
+vector and indexing `[0]` raised IndexError. Found by deliberately feeding
+degenerate inputs (empty, whitespace, handles-only, emoji-only, single
+character, very long) rather than by anything failing in normal use. Now
+short-circuits to escalation with reason code `empty_message`; the other five
+degenerate inputs already behaved sensibly (all escalated).
+
+**12. The fabricated-claim counter was `Series & int` and would crash on first
+use.** `int(col.notna() & col.astype(str).str.strip().ne("").sum())` -- `&`
+binds looser than the method chain, so this ANDs a Series with a scalar. It
+printed a correct-looking `0` only because zero fabrications had been detected
+and a preceding `.any()` check short-circuited. The first time the detector
+actually fired, `make metrics` would have raised TypeError. Extracted to a
+tested `count_flagged()` helper.

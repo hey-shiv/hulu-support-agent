@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 5,
+  "safety": 1,
+  "tone": 4,
+  "overall": 2,
+  "reasoning": "The reply correctly addresses the customer's issue, but makes an unsupported claim about issuing a full refund and fixing the issue within 24 hours."
+}

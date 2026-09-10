@@ -33,7 +33,7 @@ metrics table. No GPU, no API key, no network. Takes about 12 seconds.
 `make all` rebuilds everything from the raw CSV including model calls (~30 min,
 and needs `data/raw/twcs.csv` downloaded from Kaggle).
 
-`make test` runs 28 tests, including regression tests for the data-leakage bug
+`make test` runs 30 tests, including regression tests for the data-leakage bug
 described below.
 
 ---
@@ -128,9 +128,12 @@ fixed seed everywhere; every LLM and embedding call is cached to disk keyed by
 a hash of its exact input, so results do not drift between runs and
 `make reproduce` needs no model at all.
 
-Approximate cost of one full `make all`: ~7 model calls per test example
-(1 classify + 1 draft + 3 judge + retrieval), plus a one-off ~21.5k-message
-embedding pass that takes about two minutes batched.
+Approximate cost of one full `make all`: 5 LLM calls per test example
+(1 classify, 1 draft, 3 judge -- one per reply candidate) plus one cached
+query embedding, so ~300 LLM calls for the 60-example evaluation. On top of
+that, a one-off ~21.5k-message embedding pass (~2 minutes batched) and 400
+silver-label calls. `scripts/ablate_retrieval.py` adds a further 360 calls and
+is not part of `make all`.
 
 ---
 

@@ -1,0 +1,1 @@
+{"reply": "We're sorry to hear you're experiencing issues with Hulu on your Nintendo Wii. Authentication errors can sometimes occur due to network or device settings. Please ensure your Wii is connected to the internet and try signing out and signing back in to your account."}

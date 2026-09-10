@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 2,
+  "relevance": 5,
+  "safety": 1,
+  "tone": 5,
+  "overall": 2,
+  "reasoning": "The reply invents a refund and a 24-hour fix timeline, which are not supported by the historical evidence, and also gives incorrect advice by implying that the customer's issue is resolved when it's not."
+}

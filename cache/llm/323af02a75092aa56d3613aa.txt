@@ -1,0 +1,1 @@
+{"reply": "We're sorry to hear you're experiencing issues with the Hulu app. It sounds like the app might be stuck on the welcome screen. Try restarting your device and the app, or clear the app cache. If the issue persists, please let us know!"}
