@@ -1,0 +1,9 @@
+{
+"groundedness": 2,
+"actionability": 1,
+"tone": 4,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The response acknowledges the customer's suggestion, but fails to provide any concrete information or timeline for the documentary's availability on streaming services."
+}

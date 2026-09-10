@@ -1,0 +1,9 @@
+{
+"groundedness": 4,
+"actionability": 2,
+"tone": 3,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The response is grounded in the customer's ZIP code, but it doesn't directly address the customer's concern about the content being on-demand, and it overpromises by saying they'll 'share the interest' in adding the affiliate, which is vague."
+}

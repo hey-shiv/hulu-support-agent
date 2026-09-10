@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 2,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply does not provide any specific steps or explanations to help the customer, and instead asks them to reach out for further assistance, which is not in line with the tone and style of the historical evidence."
+}

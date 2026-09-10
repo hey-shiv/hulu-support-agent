@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply is vague and doesn't provide any specific steps or explanations, but it's not making any unsupported claims and is addressing the customer's specific issue."
+}

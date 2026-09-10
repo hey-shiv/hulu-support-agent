@@ -1,0 +1,9 @@
+{
+"groundedness": 4,
+"actionability": 2,
+"tone": 4,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The response is grounded in the streaming rights policy, but lacks a clear explanation of how the customer can access the missing episodes."
+}

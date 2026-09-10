@@ -1,0 +1,9 @@
+{
+  "groundedness": 4,
+  "actionability": 2,
+  "tone": 5,
+  "correctness": 5,
+  "no_overpromise": 5,
+  "overall": 4,
+  "reasoning": "The response acknowledges the issue and expresses empathy, but doesn't provide any concrete steps or timeline for resolution."
+}

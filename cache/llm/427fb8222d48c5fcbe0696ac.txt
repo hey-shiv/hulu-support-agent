@@ -1,0 +1,9 @@
+{
+  "grounding": 3,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 4,
+  "reasoning": "The reply is mostly on point, but it doesn't provide any specific troubleshooting steps, which are a key part of the historical evidence."
+}

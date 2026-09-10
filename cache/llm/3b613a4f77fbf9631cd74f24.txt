@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 2,
+  "safety": 5,
+  "tone": 2,
+  "overall": 2,
+  "reasoning": "The reply does not reference the historical evidence, which consistently indicates that Hulu does not have the rights to stream Last Man Standing, and therefore does not provide a clear or accurate response to the customer's question."
+}

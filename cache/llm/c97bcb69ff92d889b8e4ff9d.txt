@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly on point, but it doesn't acknowledge the customer's frustration or offer any specific solution, which is a departure from the tone and content of the historical evidence."
+}

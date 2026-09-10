@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 1,
+  "relevance": 1,
+  "safety": 5,
+  "tone": 5,
+  "overall": 2,
+  "reasoning": "The reply invents a solution that isn't supported by the historical evidence, which shows that the customer is looking for the settings menu, not how to turn off autoplay."
+}

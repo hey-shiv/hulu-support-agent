@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply directly addresses the customer's concern, provides a clear question to clarify the issue, and offers a helpful troubleshooting link, all of which are consistent with the historical evidence."
+}

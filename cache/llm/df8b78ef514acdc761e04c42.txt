@@ -1,0 +1,9 @@
+{
+"groundedness": 2,
+"actionability": 4,
+"tone": 3,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The response assumes the settings option is available on the Roku home menu, which contradicts the customer's statement that it's not there."
+}

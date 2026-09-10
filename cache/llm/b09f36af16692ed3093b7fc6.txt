@@ -1,0 +1,9 @@
+{
+"groundedness": 2,
+"actionability": 4,
+"tone": 4,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The response acknowledges the customer's frustration and provides a concrete action to take, but doesn't address the underlying issue of long wait times or provide any evidence-based solution."
+}

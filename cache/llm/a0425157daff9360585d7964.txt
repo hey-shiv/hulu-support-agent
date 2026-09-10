@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply correctly references the customer's zip code and expresses interest in seeing NBC live, but doesn't explicitly state that the AMA is available on-demand, which is the customer's main concern."
+}

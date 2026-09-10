@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply is vague and doesn't acknowledge the customer's request, but it doesn't make any unsupported claims or promises."
+}

@@ -1,0 +1,9 @@
+{
+"groundedness": 2,
+"actionability": 3,
+"tone": 4,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The response acknowledges the customer's issue but fails to provide a clear explanation or resolution, instead directing them to contact support via phone/chat."
+}

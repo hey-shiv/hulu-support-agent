@@ -1,0 +1,9 @@
+{
+  "groundedness": 5,
+  "actionability": 4,
+  "tone": 4,
+  "correctness": 5,
+  "no_overpromise": 5,
+  "overall": 4,
+  "reasoning": "The response is grounded in the customer's evidence and provides a clear, actionable solution, but could be more empathetic in tone."
+}

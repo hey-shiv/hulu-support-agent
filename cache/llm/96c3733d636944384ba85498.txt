@@ -1,0 +1,9 @@
+{
+  "groundedness": 5,
+  "actionability": 5,
+  "tone": 4,
+  "correctness": 5,
+  "no_overpromise": 5,
+  "overall": 4,
+  "reasoning": "The response acknowledges the customer's frustration, provides a concrete solution, and does not make any promises it can't guarantee, but the tone could be more empathetic."
+}

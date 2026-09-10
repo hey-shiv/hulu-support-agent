@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply acknowledges the customer's issue, but doesn't provide any specific information about when season 3 will be added, which is the main point of contention."
+}

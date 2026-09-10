@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply accurately suggests a step (calling the phone number) that is supported by the historical evidence and is relevant to the customer's issue."
+}

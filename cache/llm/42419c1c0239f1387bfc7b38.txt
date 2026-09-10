@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply acknowledges the customer's issue, but doesn't provide any specific troubleshooting steps or explanations, which are present in the historical evidence."
+}

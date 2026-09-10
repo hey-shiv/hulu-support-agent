@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply accurately reflects the tone and style of the historical evidence, but the use of 'Mr. Krabs' instead of 'Mr. Meeseeks' is inconsistent with the provided examples."
+}

@@ -1,0 +1,9 @@
+{
+"groundedness": 4,
+"actionability": 2,
+"tone": 3,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The response acknowledges the customer's frustration but fails to address the root issue of long wait times, instead asking for more information without offering a solution."
+}

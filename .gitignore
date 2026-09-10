@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.zip
+
+# Raw Kaggle download (493MB). README says how to fetch it.
+data/raw/
+
+# Regenerable in ~10s (make data) and ~2min (make index). Too large to commit.
+data/processed/*.parquet
+data/processed/*.npy
+
+# Embedding cache: ~21k small .npy files, rebuilt by `make index` in ~2 minutes.
+cache/embeddings/
+
+# NOT ignored, deliberately:
+#   cache/llm/            - replayed by `make reproduce`, no model calls needed
+#   data/golden/          - the hand-labelled evaluation set
+#   reports/*.csv         - predictions and judge outputs the report cites

@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 2,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply correctly acknowledges the issue and offers a solution, but the unsupported claim of a full refund is a concern."
+}

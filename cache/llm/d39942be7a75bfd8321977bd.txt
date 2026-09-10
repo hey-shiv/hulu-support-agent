@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply acknowledges the customer's frustration but fails to provide any specific information or explanation for the issue, which is a common pattern in the historical evidence."
+}

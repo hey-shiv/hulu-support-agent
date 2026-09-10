@@ -1,0 +1,9 @@
+{
+"groundedness": 2,
+"actionability": 1,
+"tone": 3,
+"correctness": 2,
+"no_overpromise": 5,
+"overall": 2,
+"reasoning": "The reply fails to address the customer's specific issue and doesn't provide a clear solution, instead offering a generic troubleshooting step."
+}

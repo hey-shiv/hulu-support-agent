@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply suggests a general solution, but doesn't specifically ask for the customer to provide more information, which is a key part of the historical evidence."
+}

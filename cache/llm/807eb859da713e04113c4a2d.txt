@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 2,
+  "relevance": 5,
+  "safety": 1,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply correctly addresses the customer's issue, but incorrectly promises a refund and a 24-hour fix, which are not supported by the historical evidence."
+}

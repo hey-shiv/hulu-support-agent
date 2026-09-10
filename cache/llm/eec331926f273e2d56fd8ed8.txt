@@ -1,0 +1,9 @@
+{
+"groundedness": 2,
+"actionability": 1,
+"tone": 4,
+"correctness": 3,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The reply is grounded in the fact that Season 2 of The Handmaid's Tale is set to premiere in 2018, but it fails to provide a concrete action for the customer to take and its tone is somewhat unusual."
+}

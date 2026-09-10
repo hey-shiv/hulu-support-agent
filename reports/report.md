@@ -1,0 +1,522 @@
+# Hulu Support Agent — Report
+
+## 1. Executive summary
+
+An AI support agent for `hulu_support` that classifies an incoming customer
+message into one of 10 intents, drafts a reply grounded in retrieved
+historical Hulu resolutions, and decides auto-handle vs. escalate with a
+stated reason.
+
+Evaluated on **60 hand-labelled examples** against **three baselines**.
+
+**Headline: macro-F1 0.673 on the defined task (conversation openers),
+vs. 0.362 for TF-IDF and 0.054 for majority-class.** Intervals do not overlap.
+
+**Three findings that argue against this system, which matter more than the
+headline:**
+
+1. **Reply generation does not beat copying the nearest historical reply.**
+   Paired difference +0.12, 95% CI [−0.10, +0.35] — contains zero. Retrieval
+   earns its place; the LLM generation step on top of it is not shown to.
+2. **On mid-thread messages the agent is *worse* than TF-IDF** (0.190 vs
+   0.240). Fluency becomes a liability when context is missing.
+3. **The model's self-reported confidence is worthless** — AUC 0.539 for
+   predicting its own correctness. An earlier version of this system gated
+   escalation on it.
+
+The most important sections here are §12 (why not to trust the headline) and
+§4 (two evaluation bugs found by attacking our own results — one of which
+invalidated every reply-quality number produced before it).
+
+---
+
+## 2. Problem framing
+
+**What "good" means for this brand.** Hulu's public support is mostly
+troubleshooting that repeats: playback failures, device-specific app problems,
+live-TV/sports outages, content-availability questions. A good reply therefore
+(a) proposes a step Hulu has actually used before for this class of problem,
+(b) does not invent policy, and (c) recognises when it must not answer at all.
+
+Escalation quality matters at least as much as reply quality. The cost is
+asymmetric: a needless handoff wastes one agent's minutes; a confident wrong
+answer about someone's money or account access can cost a customer, a refund
+dispute, or a public complaint. Every escalation rule here therefore fails
+*toward* escalation.
+
+**What was NOT built, and why:**
+
+- **Multi-turn dialogue.** The agent answers one incoming message. Mid-thread
+  follow-ups ("yes, during ads") need prior turns to mean anything; rather
+  than half-support them, they are excluded from the defined task and
+  measured separately (§11, failure mode 1).
+- **Fine-tuning.** Retrieval satisfies the "grounded in how this brand
+  historically resolved it" requirement directly, stays inspectable, and
+  updates when the corpus does. Fine-tuning would bake 2017 policy into
+  weights and remove the audit trail.
+- **Any agent/RAG framework.** Retrieval is a cosine similarity search over a
+  numpy array. Every step is readable and explainable.
+- **A production safety layer** beyond the escalation policy and the
+  fabricated-claim regex. Real deployment would need PII handling and abuse
+  detection.
+- **Judge rubric tuning.** The rubric was written once from the failure modes
+  we cared about, then validated (§9). Iterating it against results would have
+  meant tuning the measuring instrument to flatter the thing measured.
+
+---
+
+## 3. Architecture
+
+```
+incoming message
+      |
+      +--> classify ------------> intent (10 classes + "other")
+      |                           + self-reported confidence  [weak signal]
+      |
+      +--> retrieve ------------> 3 nearest historical Hulu exchanges
+      |                           + top-1 similarity          [evidence quality]
+      |
+      +--> draft ---------------> reply constrained to that evidence
+      |                           + fabricated-claim check
+      |
+      +--> escalate? -----------> auto-handle | escalate + reason code
+```
+
+Escalation fires on the first of: sensitive intent (billing/account) →
+unclassifiable (`other`) → weak evidence (top-1 similarity < 0.80) →
+low self-report → fabricated claim detected in the draft.
+
+---
+
+## 4. Data and evaluation integrity
+
+**Source.** Kaggle `thoughtvector/customer-support-on-twitter`, 2.8M tweets.
+Reconstructed into 1.26M `(customer message → brand reply)` exchanges by
+walking backward from each reply's parent pointer.
+
+**Brand: `hulu_support`.** Chosen on measured deflection rate — how often a
+"reply" just redirects the customer elsewhere instead of resolving anything:
+
+| Brand | Exchanges | Deflection rate |
+|---|---:|---:|
+| TMobileHelp | 34,215 | 82.4% |
+| AppleSupport | 106,646 | 55.7% |
+| Uber_Support | 56,160 | 45.4% |
+| AmazonHelp | 168,814 | 10.8% |
+| **hulu_support** | **21,681** | **7.4%** |
+
+Volume was a trap. A reply-drafting agent grounded in history is bounded by
+what that history contains; grounding on "please DM us" teaches deflection.
+
+**Two evaluation bugs found by attacking our own results:**
+
+1. **Total retrieval leakage.** The index originally contained all 21,681
+   exchanges — including every golden example. Verified: querying with a test
+   message returned *that message* at similarity `1.0000`, so the
+   copy-nearest-reply baseline emitted the literal ground-truth reply and the
+   agent received the real answer as "evidence". Every reply-quality number
+   produced before this measured memorisation.
+   **Fixed:** the index excludes every golden example *and every message from
+   the same conversation thread* (88 rows). Two tests fail if it regresses.
+
+2. **The confidence escalation trigger was dead code.** It escalated below
+   0.6 confidence; the model only ever emitted 0.80/0.90/0.95, so it never
+   fired once — and that number is a token the model chose, not a calibrated
+   probability.
+   **Fixed:** escalation now gates on measured retrieval evidence quality,
+   with the threshold derived from the *reference corpus* (p10 of top-1
+   similarity = 0.80), not from the golden set. `scripts/calibration.py` tests
+   whether either signal predicts correctness rather than assuming it.
+
+**Other integrity measures.** Golden labels made by a human with no model
+suggestion displayed. Silver (LLM) labels exist only to train the TF-IDF
+baseline and are never scored against. Thresholds derived from reference data.
+`temperature=0`, fixed seeds, every call cached.
+
+---
+
+## 5. Intent taxonomy
+
+Derived by clustering 14,080 conversation openers (TF-IDF + KMeans), then
+collapsed by hand. The clustering was informative but not usable directly: one
+cluster held 51% of all messages (generic vocabulary, no coherent topic) and
+another was simply the show name "Rick and Morty" — vocabulary clustering
+groups by shared words, not shared meaning.
+
+| Intent | Qualifies | Does not |
+|---|---|---|
+| `playback_error` | buffering, freezing, crashes, error codes | app won't launch at all → `device_app_issue` |
+| `device_app_issue` | app broken on a named device (Roku, Apple TV) | stream problems on a working app |
+| `live_tv_sports_issue` | live channel/game missing, stream drops mid-event | on-demand playback problems |
+| `content_availability` | "when is season 3", removed titles | content that exists but won't play |
+| `billing_charge` | disputed charge, refund, charged after cancelling | forward-looking plan questions |
+| `account_access` | login, password, locked out, bundle won't link | app works but content missing |
+| `feature_request` | wants something Hulu doesn't offer | something that used to work and broke |
+| `general_complaint` | anger with no actionable specific | any message naming a concrete fault |
+| `praise_chatter` | compliments, jokes, non-support | complaints phrased politely |
+| `other` | genuine but fits nothing above, or garbled | anything a real class plausibly fits |
+
+`other` is deliberate: forcing every message into a substantive class converts
+"I don't know" into a confident wrong answer. `other` also triggers escalation.
+
+---
+
+## 6. Golden evaluation set
+
+**60 hand-labelled examples** (44 conversation openers, 16 mid-thread).
+
+**Sampling.** Two tagged strata: `natural` (40, plain random — the only slice
+that estimates production performance) and `rare_boost` (20, spread evenly
+across the 10 clusters so low-frequency intents have any measurable per-class
+score at all). Every row keeps its stratum tag; results are reported per
+stratum rather than blended, because blending would hide which population a
+number describes.
+
+**Labelling.** One human, one pass, using the definitions in §5, with no model
+prediction ever displayed — a shown suggestion anchors annotator judgment and
+would make the golden set a measurement of the model instead of a check on it.
+Escalation was judged per message, not derived from intent, which is why 3
+labels escalate outside the always-escalate categories.
+
+**This is below the assignment's stated 150–250 range, and that is a real
+shortfall, not an oversight.** Labelling is human work and the time was not
+available. The consequences are quantified rather than hidden:
+
+- confidence intervals on every metric are wide (§10)
+- only 7 of 60 examples are true escalations, so escalation rates are unstable
+- exactly 1 `billing_charge` example, so the highest-cost intent is
+  effectively unmeasured
+
+An expanded sampler (`scripts/sample_golden.py`) is built and ready, including
+`escalation_sensitive` and `adversarial` strata designed specifically to fix
+the second and third points. It needs roughly 40 more minutes of labelling.
+
+---
+
+## 7. Evaluation method
+
+| Metric | Definition |
+|---|---|
+| **Macro-F1** (primary) | Unweighted mean of per-class F1. Primary because accuracy is carried by common intents while the ones that matter most are rarest. |
+| Accuracy | Reported alongside, never alone. |
+| Per-class P/R/F1 + confusion matrix | Where the aggregate hides failure. |
+| **Missed escalation rate** | Of messages that should escalate, the fraction auto-handled. The expensive error. |
+| **Needless escalation rate** | Of messages that need not escalate, the fraction escalated. The cost of caution. |
+| Judge dimensions | grounding, correctness, relevance, safety, tone, overall (1–5), each separately defined. |
+| Bootstrap 95% CI | 2000 resamples with replacement. |
+
+---
+
+## 8. Baselines
+
+| | What it is | Why included |
+|---|---|---|
+| **Trivial** | Always predict the majority intent; one fixed apology for every reply; always escalate | The floor. "Always escalate" has perfect recall and zero automation — if it wins, the metric is wrong. |
+| **Simple (rules)** | Hand-written keyword classifier; copy the nearest historical reply verbatim; escalate on sensitive intents | Independent of the LLM. What a competent engineer builds in an afternoon. |
+| **Simple (TF-IDF)** | TF-IDF + logistic regression trained on 400 silver-labelled messages | Answers "can a microsecond-latency linear model recover the LLM's behaviour?" **Circular by construction** — it distills the LLM's own labels, so it cannot meaningfully exceed it. Stated, not hidden. |
+
+The TF-IDF baseline is given labelled training data the LLM agent never
+receives. That biases the comparison against our own system deliberately.
+
+---
+
+## 9. Is the judge trustworthy?
+
+Reply-quality numbers come from an LLM judge (llama3.1) scoring replies from a
+different model family (qwen2.5), so it is not grading its own style. That
+helps but proves nothing, so the judge was tested two ways.
+
+**Discrimination test** (`scripts/judge_validity.py`, 25 held-out exchanges,
+no human time). Each real exchange scored in three variants:
+
+| Variant | grounding | correctness | relevance | safety | tone | overall |
+|---|---:|---:|---:|---:|---:|---:|
+| real Hulu reply | 5.00 | 5.00 | 5.00 | 5.00 | 5.00 | 5.00 |
+| generic apology | 3.04 | 3.48 | 4.80 | 5.00 | 4.44 | 3.56 |
+| real reply + invented refund/timeline | 1.72 | 1.52 | 5.00 | **1.04** | 3.72 | 2.36 |
+
+All three checks pass: real replies beat generic non-answers, and a fluent,
+on-topic reply carrying an invented refund is punished to **1.04/5 on safety**.
+That is the failure a single "quality" score waves through, and the safety
+dimension catches it.
+
+**Two honest problems this same table reveals:**
+
+1. **`relevance` does not work.** Spread across three wildly different reply
+   qualities is **0.20** (5.00 / 4.80 / 5.00). It contributes nothing and
+   should be replaced, not reported as if it measured something.
+2. **Ceiling effect on good replies.** Real human replies score a flat 5.00 on
+   every dimension. The judge separates good from bad but may not discriminate
+   *among* good replies — which is exactly what comparing our agent to a strong
+   baseline requires.
+
+**Human agreement** (`scripts/judge_agreement.py`): pending — 21 blind human
+ratings, roughly 4 minutes of work, run via `make rate`. Until that exists,
+every judge-derived number in §10 should be read as a **ranking signal only**,
+not as an absolute quality level.
+
+---
+
+## 10. Results
+
+n = 60 human-labelled examples (44 openers, 16 mid-thread). Reproduce with
+`make reproduce`.
+
+### Intent classification — openers only (the defined task, n=44)
+
+| System | Macro-F1 | 95% CI | Accuracy |
+|---|---:|---|---:|
+| Trivial (majority class) | 0.054 | [0.038, 0.083] | 0.318 |
+| Simple (keyword rules) | 0.257 | [0.155, 0.378] | 0.386 |
+| Simple (TF-IDF, silver-trained) | 0.362 | [0.190, 0.499] | 0.455 |
+| **Agent (LLM)** | **0.673** | [0.463, 0.792] | 0.727 |
+
+The agent beats both simple baselines with non-overlapping intervals. This is
+the one result in this report that is unambiguous.
+
+### Intent classification — mid-thread fragments (n=16)
+
+| System | Macro-F1 | Accuracy |
+|---|---:|---:|
+| Simple (TF-IDF) | 0.240 | 0.375 |
+| **Agent (LLM)** | **0.190** | 0.250 |
+
+**The agent loses to TF-IDF here.** On messages whose meaning lives in a prior
+turn, the LLM's fluency actively hurts — it confidently invents a reading
+("it came on. Thanks for your help" → `playback_error`) where the bag-of-words
+model has no strong opinion. Blended across all 60 this drags macro-F1 from
+0.673 down to 0.487.
+
+### Reply quality (LLM judge, 1–5)
+
+| System | grounding | correctness | relevance | safety | tone | overall |
+|---|---:|---:|---:|---:|---:|---:|
+| Trivial (constant apology) | 2.95 | 3.52 | 4.63 | 5.00 | 4.50 | 3.55 |
+| Simple (copy nearest reply) | 4.73 | 4.73 | 4.73 | 4.88 | 4.93 | 4.77 |
+| Agent (grounded generation) | 4.88 | 4.90 | 5.00 | 5.00 | 5.00 | 4.88 |
+
+**Paired difference, agent vs. copy-nearest: +0.12, 95% CI [−0.10, +0.35].**
+
+**The interval contains zero. Generation is not shown to beat simply copying
+the most similar historical reply.** Both clearly beat the constant apology,
+so retrieval is earning its place — the LLM generation step on top of it is
+not, on this metric, at this sample size. This is the most important negative
+result in the report and it argues against the system's own complexity.
+
+### Escalation (7 true escalations of 60)
+
+| System | Recall | Precision | Missed escalations | Needless escalations |
+|---|---:|---:|---:|---:|
+| Trivial (always escalate) | 1.00 | 0.12 | 0.00 | 1.00 |
+| Simple (sensitive intents) | 0.43 | 0.75 | 0.57 | 0.02 |
+| Agent (intent+evidence+claims) | 0.57 | 0.25 | 0.43 | 0.23 |
+
+The agent catches more true escalations than the rule baseline (0.57 vs 0.43)
+by escalating far more often (23% vs 2% needless). Whether that trade is right
+depends on a cost ratio we have not measured. **With 7 positives, one flipped
+prediction moves recall by 14 points — this comparison is not statistically
+meaningful and should not be used to claim the agent wins.**
+
+Which rule fired: `auto_handle` 44, `sensitive_intent` 7, `weak_evidence` 6,
+`unclassifiable` 3, `forbidden_claim` 0.
+
+### Robustness
+
+JSON parse success 60/60 for both classification and reply generation.
+Fabricated-claim detections: 0/60 — the constrained prompt appears to be
+holding, though `judge_validity.py` confirms the detector fires correctly when
+a fabrication is deliberately injected.
+
+### Do the uncertainty signals work? (`scripts/calibration.py`)
+
+| Signal | Tested against | Result |
+|---|---|---|
+| Self-reported confidence | intent correctness | AUC **0.539** — no usable signal |
+| Evidence similarity | intent correctness | AUC 0.378 — none (wrong hypothesis, see below) |
+| Evidence similarity | **reply grounding** | ρ = **+0.283**, p = 0.028 — modest but real |
+
+The self-reported confidence the model emits is worthless for predicting its
+own correctness, which retroactively justifies demoting it from primary
+trigger to weak last check. Evidence similarity does not predict intent
+accuracy — but it was never designed to; its claim is about whether a reply
+can be grounded, and against *that* it holds up with a small, significant
+positive relationship (grounding 4.73 on weak evidence vs 4.93 on strong).
+
+---
+
+## 11. Failure analysis
+
+Derived from all 24 misclassifications in `reports/predictions.csv`.
+
+### 1. Missing conversational context (the largest single cause)
+
+**Example:** *"it is a roku TV actually"* → true `other`, predicted
+`device_app_issue` (similarity 0.94).
+**Also:** *"After it did that 6 or 7 times, it came on. Thanks for your help"*
+→ true `praise_chatter`, predicted `playback_error`.
+**Expected:** recognise these are continuations that cannot be classified alone.
+**Actual:** confident labels from fragments.
+**Why:** 16 of 60 examples are mid-thread; the referent of "it" is in a turn
+the agent never receives. Macro-F1 drops 0.673 → 0.190 on this slice.
+**Type:** data/task-definition, not model.
+**Fix:** pass the preceding turns, or restrict input to openers. Worth it —
+this is the difference between 0.487 and 0.673 headline macro-F1.
+
+### 2. `live_tv_sports_issue` vs `playback_error` (5 cases, the biggest
+confusion cell)
+
+**Example:** *"Playback failure every commercial break! This is not the time
+to choke. #WorldSeries2017"* → true `live_tv_sports_issue`, predicted
+`playback_error`.
+**Also:** *"Hulu Live has been unwatchable for more than 24 hrs. Constant
+buffering"* → same confusion.
+**Why:** these messages genuinely contain both signals — a playback symptom
+occurring in a live-TV context. The model weights symptom vocabulary
+("buffering", "playback failure") over context vocabulary ("live", "game").
+**Type:** taxonomy design, not model error. The two classes overlap by
+construction and a human could defend either label.
+**Fix:** either merge them, or define precedence explicitly ("if the content
+is live, live wins"). Cheap, and would recover a meaningful share of errors.
+
+### 3. `device_app_issue` misread as `account_access` (2 cases)
+
+**Example:** *"Where do I find settings?? Not on computer & can't find it on
+the TV screen."* → predicted `account_access`.
+**Why:** "can't find / can't get to something" reads as an access problem. The
+real distinction is *navigating a UI* vs *authenticating*, which the intent
+definitions state but do not make salient.
+**Type:** prompt/definition clarity.
+**Fix:** sharpen the boundary line in the taxonomy. Very cheap.
+
+### 4. Sarcasm and irony read literally
+
+**Example:** *"Eww! Hulu's community managers have to work on Saturday nights!
+God, I'm so sorry. Are you okay? Blink twice if you need rescued!"* → true
+`praise_chatter` (a joke), predicted `general_complaint`.
+**Why:** surface sentiment is negative; the intent is friendly banter.
+`praise_chatter` scores F1 **0.00** (both its examples missed).
+**Type:** model limitation.
+**Fix:** few-shot examples of ironic messages. Low priority — rare, and
+misrouting a joke to a human costs almost nothing.
+
+### 5. Label ambiguity — some "errors" are arguably correct
+
+**Example:** *"can't watch anything. What's up? 🤷🏾‍♂️"* → labelled
+`general_complaint`, predicted `playback_error`. The prediction is defensible;
+so is the label.
+**Why:** the `general_complaint`-vs-specific boundary was flagged as fuzzy
+when the taxonomy was designed, and it is producing disagreements now.
+**Type:** evaluation, not model.
+**Fix:** this is precisely what a second annotator would quantify. Without an
+inter-annotator agreement number we cannot say how much of the 40% error rate
+is real. **This is the strongest argument for limitation 3 in §12.**
+
+**Cross-cutting observation:** retrieval similarity on these errors is high
+(0.80–0.95). The system finds topically similar history and still
+misclassifies — consistent with the calibration finding that similarity does
+not predict intent correctness.
+
+---
+
+## 12. What is misleading about my headline number?
+
+**0. The headline number is measured on the slice where the system does best.**
+"Macro-F1 0.673" is openers only (n=44). Across all 60 examples it is
+**0.487**. Both are defensible — openers are the task the system was built
+for — but quoting 0.673 without saying which population it describes would be
+the single most misleading thing in this report. Both appear in §10.
+
+1. **n=60, and the confidence intervals are wide enough to swallow most
+   differences.** The headline's own interval is [0.463, 0.792] — a spread of
+   0.33. Any gap between systems smaller than roughly ±0.1 macro-F1 is not
+   evidence of anything. The point estimates in §10 should never be quoted
+   without their intervals.
+
+1b. **The reply-quality headline does not survive its own significance test.**
+   Agent 4.88 vs copy-nearest 4.77 looks like a win and is not one: paired
+   95% CI [−0.10, +0.35]. Reporting "4.88/5 reply quality" as evidence the
+   agent works would be quoting a number that does not distinguish it from a
+   baseline with no language model in it at all.
+
+2. **Below the assignment's 150–250 golden-set range.** Stated in §6 with
+   consequences quantified. Every number here would move on a larger set, and
+   the direction is unknown.
+
+3. **One annotator, one pass, no measured human ceiling.** Nobody
+   double-labelled anything, so there is no inter-annotator agreement number.
+   That means we cannot separate "the agent was wrong" from "the label was
+   arguable" — and on boundaries like `general_complaint` vs. a specific
+   intent, plenty of labels are arguable.
+
+4. **7 true escalations out of 60.** One flipped prediction moves escalation
+   recall by ~14 percentage points. The escalation comparison in §10 is close
+   to noise and should not be used to claim the agent beats the rule baseline.
+
+5. **Exactly 1 billing example.** The single highest-cost decision in the
+   entire system — money — is measured on n=1. We can make no claim about
+   billing performance at all.
+
+6. **Judge-derived reply scores currently have no human anchor** (§9), and the
+   judge shows a ceiling effect on good replies plus one dimension
+   (`relevance`, spread 0.20) that measures nothing. The agent scores 5.00 on
+   three of six dimensions -- at the ceiling, where the judge has already been
+   shown not to discriminate.
+
+7. **The person who built the system also wrote the labels and the ratings.**
+   Blinding reduces this; it does not remove it.
+
+8. **Historical Hulu replies are treated as good, but were never verified to
+   have resolved anything.** No reliable resolution signal exists in the raw
+   data. Grounding in history assumes history worked.
+
+9. **Survivorship bias.** Only conversations that happened publicly on Twitter
+   are visible. Customers who called, used in-app help, or gave up silently
+   are absent from both the corpus and the evaluation.
+
+10. **2017 data.** Hulu's product and support playbooks have changed. Nothing
+    here validates the grounding corpus against present-day Hulu.
+
+11. **The `natural` stratum is the only one that estimates production
+    performance.** Any blended number across strata describes a population
+    that does not exist. Agent macro-F1: 0.519 natural vs 0.316 rare_boost.
+
+12. **An escalation trigger fires on a signal that does not predict what it
+    claims.** `weak_evidence` fired 6 times. Evidence similarity correlates
+    with reply grounding at rho=+0.283 -- real, but small enough that 6
+    escalations on that basis is a decision resting on a weak signal.
+
+13. **Zero fabricated claims were detected, which is not the same as zero
+    fabrications.** The detector is a regex for a specific set of phrasings.
+    `judge_validity.py` shows it catches deliberately injected fabrications,
+    but a novel phrasing would pass. "0/60" measures the detector as much as
+    the model.
+
+---
+
+## 13. What I would build with one more week
+
+Ordered by what the evaluation above says is actually broken:
+
+1. **Finish the golden set to 200** using the already-built sampler, including
+   the `escalation_sensitive` stratum — this directly fixes limitations 1, 4
+   and 5, which are the three biggest.
+2. **Double-label 50 examples blind, a day apart**, for a human agreement
+   ceiling. Every accuracy claim is uninterpretable without it.
+3. **Replace the `relevance` judge dimension** — measured spread 0.20, it does
+   nothing. Probe the ceiling effect with deliberately near-miss replies.
+4. **Pass conversation context** for mid-thread messages, converting failure
+   mode 1 from "out of scope" into a solved case.
+5. **Ablate retrieval** (k=0 vs k=1 vs k=3): does grounding actually earn its
+   place, or would the LLM score similarly with none? Currently unmeasured,
+   and it is the central claim of the system.
+6. **Cost curve for escalation** — sweep the evidence threshold and plot
+   automation rate against missed-escalation rate, so the operating point is
+   chosen from an explicit cost ratio rather than a percentile.
+
+---
+
+## 14. Decision log
+
+16 entries in [`decision_log.md`](decision_log.md), each with the alternative
+considered and why it was rejected. Bugs hit during development and how they
+were diagnosed: [`build_log.md`](build_log.md).

@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 1,
+  "relevance": 1,
+  "safety": 1,
+  "tone": 1,
+  "overall": 1,
+  "reasoning": "The reply invents a policy about Sharp Smart TVs, which is unrelated to the customer's Wii issue and makes an unsupported claim about account actions."
+}

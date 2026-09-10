@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 4,
+  "safety": 5,
+  "tone": 2,
+  "overall": 3,
+  "reasoning": "The reply does not provide any specific information about the release date of Season 2, but it does not make any unsupported claims either."
+}

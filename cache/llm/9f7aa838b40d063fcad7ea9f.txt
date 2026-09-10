@@ -1,0 +1,9 @@
+{
+"groundedness": 2,
+"actionability": 1,
+"tone": 4,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 3,
+"reasoning": "The response acknowledges the customer's interest but fails to provide a clear timeline or concrete next steps, making it difficult to assess its groundedness and actionability."
+}

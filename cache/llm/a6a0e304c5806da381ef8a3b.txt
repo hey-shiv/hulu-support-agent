@@ -1,0 +1,9 @@
+{
+  "groundedness": 2,
+  "actionability": 2,
+  "tone": 3,
+  "correctness": 4,
+  "no_overpromise": 5,
+  "overall": 3,
+  "reasoning": "The response acknowledges the customer's issue, but doesn't provide any concrete information or solution, making it seem like a generic template response."
+}

@@ -1,0 +1,9 @@
+{
+  "groundedness": 1,
+  "actionability": 1,
+  "tone": 4,
+  "correctness": 2,
+  "no_overpromise": 5,
+  "overall": 2,
+  "reasoning": "The response does not address the customer's concern about the community managers working on Saturday nights, nor does it provide any concrete solution or next steps."
+}

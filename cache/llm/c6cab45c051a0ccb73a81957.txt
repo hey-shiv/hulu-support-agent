@@ -1,0 +1,9 @@
+{
+"groundedness": 5,
+"actionability": 2,
+"tone": 4,
+"correctness": 4,
+"no_overpromise": 5,
+"overall": 4,
+"reasoning": "The response acknowledges the customer's issue and provides a troubleshooting link, but doesn't directly address the problem or offer a concrete solution."
+}
