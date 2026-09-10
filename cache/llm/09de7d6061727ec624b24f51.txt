@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly accurate and relevant, but it doesn't provide any specific information about the status of iCarly on Hulu, which is what the customer is asking for."
+}

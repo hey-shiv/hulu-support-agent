@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 4,
+  "reasoning": "The reply provides a reasonable explanation, but doesn't directly acknowledge the customer's expectation of the episode being available, and doesn't offer a clear solution or next steps."
+}

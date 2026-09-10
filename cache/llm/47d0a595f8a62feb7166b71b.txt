@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply provides a reasonable explanation for the error codes, but it doesn't explicitly reference the historical evidence, which suggests that the customer should try a specific troubleshooting link."
+}

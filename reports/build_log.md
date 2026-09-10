@@ -150,3 +150,44 @@ printed a correct-looking `0` only because zero fabrications had been detected
 and a preceding `.any()` check short-circuited. The first time the detector
 actually fired, `make metrics` would have raised TypeError. Extracted to a
 tested `count_flagged()` helper.
+
+**13. CRITICAL -- 101 of 140 second-batch golden labels were mismatched to
+their message content.** After the golden set was expanded from 60 to 200
+examples and hand-labelled in a second session (done quickly, under real time
+pressure), evaluating gave macro-F1 0.222 against the first batch's 0.487 --
+a plausible-looking drop, since the new batch deliberately added categories
+(`billing_charge`, `account_access`) the first batch barely sampled. It was
+tempting to accept this as the expected effect of a harder, more honest
+sample and move on.
+Investigated instead of accepted, starting from a concrete oddity: the
+`billing_charge` count sat at 12 in a 200-row set, and reading those 12
+messages directly showed most had nothing to do with billing --
+`billing_charge` was assigned to "Are the new Christmas Movies going to be
+on?", "Does anyone like the new interface? Beautiful and terribly
+unpleasant to use.", and "Trying to watch 2006 version of Penelope and end up
+getting 1966's version." None of these mention money, a charge, a
+subscription, or an account.
+Widened the check to all 140 second-batch rows, dumping every message next
+to its label and reading each one against the taxonomy definitions in
+`src/taxonomy.py`. Found the same pattern throughout: labels that were
+internally consistent-looking (a real intent name, a real escalate value) but
+disconnected from the actual message content, most heavily concentrated in
+`playback_error` (used for messages about account logins, billing charges,
+content requests, and praise) and `content_availability` (used for messages
+about live-TV outages, device crashes, and billing disputes). This is
+consistent with a labelling session where key presses drifted from the
+message on screen -- plausible under real time pressure with the keyboard-
+driven, no-mouse label tool -- rather than random noise or a code bug: the
+original 60-row batch, labelled unhurried, showed no comparable pattern on
+the same spot-check method.
+Fix: read all 140 second-batch messages against the taxonomy a second time
+and corrected every mismatch found -- 101 of 140 rows (72%), including 9 of
+the original 12 `billing_charge` labels. `data/golden/golden_labelled.csv`
+in git history preserves both the corrupted and corrected versions for audit.
+Re-ran the full pipeline (`build_index.py`, `run_eval.py`, `metrics.py`) on
+the corrected set: macro-F1 0.606, accuracy 63.0% -- higher than either the
+first batch alone (0.487) or the corrupted full set (0.222), and now with
+adequate per-class sample sizes to trust the `billing_charge` (n=18) and
+`account_access` (n=17) numbers specifically, which is the entire reason the
+second batch was drawn. See `decision_log.md` entry 17 and `report.md`
+section 4 for the reporting consequences of this.

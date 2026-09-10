@@ -1,0 +1,1 @@
+{"reply": "We're sorry to hear you're experiencing issues with the app on your phone. This could be due to a variety of reasons, such as app version or network connectivity. Please try updating the app or checking your internet connection, and let us know if that helps."}

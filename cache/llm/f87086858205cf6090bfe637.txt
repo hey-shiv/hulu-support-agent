@@ -1,0 +1,1 @@
+{"reply": "We're sorry to hear you're experiencing issues with skipping ahead on Apple TV. This problem might be related to how the Apple TV handles ad breaks. Please try updating your Apple TV software to the latest version, as this could resolve the issue. If the problem persists, feel free to let us know, and we'll do our best to assist you further."}

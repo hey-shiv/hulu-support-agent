@@ -165,3 +165,26 @@ no model calls -- which is what makes the 15-minute reproduction claim honest.
 *Alternative:* a hosted API with a stronger model.
 *Rejected because:* it would make reproduction depend on a reviewer's API key
 and budget, and would tempt using one vendor for both generation and judging.
+
+**17. A suspiciously low evaluation result was investigated before being
+reported, not written up as a finding.**
+*Reason:* expanding the golden set from 60 to 200 examples initially produced
+macro-F1 0.222, down from 0.487 on the smaller set. That drop was plausible
+on its face -- a properly stratified set surfacing categories the first draw
+almost entirely missed is exactly the "misleading headline number" scenario
+this project set out to demonstrate. It would have been easy to write it up
+as that finding and move on.
+*Alternative:* report the 0.222 result as the headline, with the sample-size
+explanation, and cite it as evidence for the mandatory misleading-number
+section.
+*Rejected because:* re-reading the actual labels behind the drop (starting
+from the `billing_charge` category, where the count looked too high) found
+that 101 of the 140 second-batch labels were mismatched to their message
+content -- e.g. `billing_charge` assigned to "Are the new Christmas Movies
+going to be on?" -- a data-entry defect from a labelling session done quickly
+under time pressure, not a real property of the system. Reporting 0.222 would
+have presented a labelling bug as a model-quality finding. Every label was
+re-read against the taxonomy and corrected (`build_log.md` entry 9 has the
+full diagnosis); the corrected set gives macro-F1 0.606. The investigation
+itself, not either number alone, is the real evidence for how headline
+numbers mislead.

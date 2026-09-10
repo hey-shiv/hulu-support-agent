@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply is vague and doesn't address the customer's specific claim that Hulu is better than Netflix, but it's safe and has a tone consistent with the historical evidence."
+}

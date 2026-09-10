@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply acknowledges the customer's frustration and offers to assist, but doesn't specifically ask for device information or provide a troubleshooting link, which is a consistent pattern in the historical evidence."
+}
