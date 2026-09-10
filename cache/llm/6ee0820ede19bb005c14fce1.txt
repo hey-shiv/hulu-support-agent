@@ -1,0 +1,1 @@
+{"reply": "We're sorry to hear you're experiencing timeouts while using the app on your TV. Let's troubleshoot together. Could you check your internet connection and try restarting your TV and router?"}

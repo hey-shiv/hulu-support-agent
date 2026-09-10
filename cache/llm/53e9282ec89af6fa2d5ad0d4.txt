@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is grounded in the idea of improving the Watchlist experience, but it doesn't directly address the customer's request for a way to uncheck unwanted shows."
+}

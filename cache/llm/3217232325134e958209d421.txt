@@ -1,0 +1,1 @@
+{"reply": "We do require an updated version of the app that select devices may not be able to support for technical reasons. Have you ensured your TV is running the latest app version?"}

@@ -88,13 +88,14 @@ Stated here rather than buried, because a reviewer will find them anyway:
    140 new labels were mismatched to their message content (a labelling
    data-entry error, not a model weakness). Correcting them gives the
    0.606 reported here. Full diagnosis in `reports/build_log.md` entry 13 and
-   `reports/decision_log.md` entry 17; this is the project's real evidence for
+   `reports/decision_log.md` entry 15; this is the project's real evidence for
    the mandatory "misleading headline number" section, not a hypothetical.
-2. **No per-item judge-human agreement.** `scripts/judge_validity.py` provides
-   weaker substitute evidence (the judge recovers a quality ordering fixed by
-   construction, and catches injected fabrications). Run `make agreement` for
-   an explicit statement of what is and is not established. `make rate`
-   collects the real thing in ~4 minutes.
+2. **The judge agrees with a human only moderately, and is systematically
+   generous.** 21 blind human ratings (`make rate`, `make agreement`) give
+   Spearman rho 0.54 (p=0.011), 14% exact agreement, and a +1.48 mean bias —
+   worst on the weakest replies. Judge scores are used only as a ranking
+   signal, never an absolute quality level, and a judge-reported "no
+   difference" is trusted more than a judge-reported win (report §9).
 3. **Reply generation is not shown to beat retrieval alone** (paired 95% CI
    contains zero). This is reported as a finding, not smoothed over.
 4. **Escalation recall is 54% overall**, missing nearly half of cases that

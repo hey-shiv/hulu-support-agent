@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply suggests checking account settings, which is a reasonable step, but it doesn't directly address the issue of the channels being unavailable, and it doesn't ask for the customer's zip code to verify the issue."
+}

@@ -226,12 +226,26 @@ escalation judged per-message rather than mechanically derived from intent.
 
 Reply-quality numbers come from an LLM judge (llama3.1) scoring replies from a
 different model family (qwen2.5) — helpful, but not proof, so it was tested
-directly. **Per-item human ratings were not collected** — a real, stated gap;
-`scripts/judge_agreement.py` says so plainly rather than substituting weaker
-evidence silently.
+two ways: against a real human, and against a known-correct ordering.
 
-**Graded degradation test instead** (`scripts/judge_validity.py`, 25
-exchanges × 4 constructed-quality variants = 100 judge calls):
+**Per-item human agreement** (`scripts/judge_agreement.py`, 21 replies —
+7 each from the agent, the copy-nearest baseline, and the trivial baseline —
+rated blind, with neither the producing system nor the judge's score shown):
+
+**Spearman rho: 0.54 (p = 0.011) — a real but moderate ranking correlation.
+Exact agreement: 14%. Within one point: 57%. Mean signed error: +1.48 —
+the judge is systematically generous.** The bias is not evenly spread: on the
+trivial baseline the judge scores 4.00 against a human 2.00 (gap +2.00),
+worse than its +1.14 gap on the agent's replies. **This means the judge
+overstates how good a bad reply is more than it overstates a good one** — a
+sharper problem than uniform generosity, because it compresses the very
+quality differences the evaluation is trying to measure. One rater, one
+pass, no inter-human ceiling, and the rater also built the system — blinding
+reduces this, it does not remove it.
+
+**Graded degradation test as a second, independent check**
+(`scripts/judge_validity.py`, 25 exchanges × 4 constructed-quality variants =
+100 judge calls, no human labour):
 
 | Variant | grounding | correctness | relevance | safety | tone | overall |
 |---|---:|---:|---:|---:|---:|---:|
@@ -245,14 +259,19 @@ exchanges × 4 constructed-quality variants = 100 judge calls):
 above a non-answer, catches the subtle loss of actionable content (5.00 →
 4.48), and drives safety to the floor on an injected fabrication.
 
-**Honest problems the same table exposes:** `relevance` barely
+**Honest problems both tests expose together:** `relevance` barely
 discriminates (spread 0.48, rates the fabricated reply 4.68/5); real replies
-hit a ceiling of 5.00, so the judge may not separate good from *slightly
-better*; and constructed variants differ obviously in a way real
-system-vs-system replies do not.
+hit a ceiling of 5.00 in both tests, which is now explained rather than just
+observed — the human agreement data shows the judge specifically inflates
+weak replies rather than simply running high everywhere, so the ceiling
+compresses exactly the differences a reply-quality comparison needs.
 
-**Practical consequence:** judge scores are used as a ranking signal, never
-as an absolute quality level.
+**Practical consequence, applied throughout §10:** judge scores are used as
+a ranking signal, never as an absolute quality level, and the reply-quality
+comparisons are read knowing the judge's own bias runs toward closing gaps,
+not opening them — so a judge-reported "no significant difference" is not
+weakened by this bias, and a judge-reported win should be treated with more
+suspicion than its interval alone suggests.
 
 ---
 
@@ -435,9 +454,11 @@ Agent 4.87 vs. copy-nearest 4.89, paired CI [−0.12, +0.09]. This number is
 untouched by the §4 correction (it depends on replies, not intent labels),
 and it still does not support "the LLM generation step improves quality."
 
-**4. Judge scores have no per-item human anchor** (§9) and show a ceiling
-effect exactly where the agent-vs-baseline reply comparison needed
-discrimination.
+**4. Judge scores agree with a human only moderately (ρ = 0.54) and run
+systematically generous (+1.48), worst on the weakest replies** (§9) —
+meaning a judge-reported "no difference" is safe to trust, but a
+judge-reported win should be trusted less than its confidence interval
+alone suggests.
 
 **5. `relevance` barely functions as a judge dimension** — it rates a reply
 carrying an invented refund 4.68/5.
@@ -473,8 +494,9 @@ corrections** — blinding during labelling reduces this, it does not remove it.
 2. **Double-label 50 examples blind, a day apart**, for a genuine
    inter-annotator agreement ceiling — the one thing the §4 correction could
    not provide, since it fixed factual mismatches, not judgment variance.
-3. **Collect per-item human ratings** (`make rate`, ~4 minutes) — the one
-   assignment deliverable not met.
+3. **Widen the human-rating sample past 21.** The judge's systematic
+   generosity (+1.48, worst on weak replies, §9) is a real finding worth
+   confirming at a size where the bias itself has a tighter interval.
 4. **Fix the `live_tv_sports_issue` boundary** (§11.1) with explicit
    precedence rules — the single largest remaining error cluster.
 5. **Replace the `relevance` judge dimension.**

@@ -129,12 +129,13 @@ trustworthiness is tested rather than assumed.**
 *Reason:* grounding, correctness, relevance, safety, tone -- each with a
 definition specific enough that two readers would score alike; grounding and
 safety exist because they are the failure modes a fluent-sounding wrong reply
-passes on any single "quality" score. Trustworthiness was then tested rather
-than asserted: `src/rate_tui.py` is built for blind per-item human ratings
-(rater sees neither the producing system nor the judge's score), and where
-that was not completed in time, `scripts/judge_validity.py`'s graded
-degradation test substitutes weaker but real evidence, disclosed as such
-rather than presented as the real thing.
+passes on any single "quality" score. Trustworthiness was then tested, not
+assumed, two ways: 21 blind per-item human ratings via `src/rate_tui.py`
+(rater sees neither the producing system nor the judge's score) gave
+Spearman rho 0.54 and a systematic +1.48 generosity bias, worst on the
+weakest replies; a graded degradation test (`scripts/judge_validity.py`)
+gave rho -0.83 against a quality ordering fixed by construction. Both are
+reported, including the parts that are unflattering to the judge.
 *Alternative:* one 1-5 quality rating, with judge scores reported as the
 reply-quality result on their own authority.
 *Rejected because:* a confident, well-written reply that invents a refund

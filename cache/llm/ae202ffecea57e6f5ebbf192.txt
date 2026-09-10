@@ -1,0 +1,1 @@
+{"reply": "We require a home network to provide the correct channel lineup. If you're unable to connect via a hotspot, this may cause the 'Home network' error. For more information, see: https://t.co/Nvg3PZWd0j."}
