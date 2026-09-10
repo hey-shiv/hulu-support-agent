@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 1,
+  "relevance": 1,
+  "safety": 5,
+  "tone": 1,
+  "overall": 2,
+  "reasoning": "The reply does not address the customer's question about the number of devices that can be active at the same time, and instead asks the customer to reach out for further assistance."
+}

@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 2,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply does not address the customer's specific question about the availability of iCarly on Hulu, but it does not make any unsupported claims or promises."
+}

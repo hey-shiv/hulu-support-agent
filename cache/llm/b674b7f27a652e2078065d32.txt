@@ -1,0 +1,9 @@
+{
+  "grounding": 3,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is a generic template that doesn't address the customer's specific concerns about spam emails, but it's safe and has a tone consistent with the historical evidence."
+}

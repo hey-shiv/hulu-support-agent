@@ -1,0 +1,1 @@
+{"reply": "We require an updated version of the app that some devices may not support. Try checking for any app updates and running through: https://t.co/C3IOhQGizS. Does the error go away after that?"}

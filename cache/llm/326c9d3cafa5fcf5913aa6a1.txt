@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply does not provide any specific information or explanation, but it does not make any unsupported claims and is relevant to the customer's question."
+}

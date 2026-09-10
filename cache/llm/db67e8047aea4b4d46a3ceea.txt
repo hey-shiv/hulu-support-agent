@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply accurately follows the same format and language used in the historical evidence, and directly addresses the customer's question by asking for a video of the behavior and providing troubleshooting steps."
+}

@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply accurately directs the customer to check the availability of ABC in their area and provides a specific time for the AMAs, mirroring the tone and style of the historical evidence."
+}

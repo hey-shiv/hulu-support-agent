@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply suggests a general next step, but doesn't reference any specific policy or explanation from the historical evidence, and doesn't address the customer's specific concern about commercials."
+}

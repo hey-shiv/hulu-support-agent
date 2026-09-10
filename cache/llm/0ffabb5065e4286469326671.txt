@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply is vague and doesn't provide any specific steps or resources, but it's on point and doesn't make any unsupported claims."
+}

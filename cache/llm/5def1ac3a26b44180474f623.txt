@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply acknowledges the issue but fails to provide any concrete steps or troubleshooting links, which are consistently present in the historical evidence."
+}

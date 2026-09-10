@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly safe and relevant, but it doesn't provide any specific troubleshooting steps or links to help the customer, which is a common pattern in the historical evidence."
+}

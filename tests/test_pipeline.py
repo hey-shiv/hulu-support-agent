@@ -259,3 +259,30 @@ def test_golden_set_is_fully_labelled():
     assert unlabelled == 0, (
         f"{unlabelled} unlabelled rows in the golden set -- sample_golden.py "
         f"probably ran over it. Restore with: git checkout HEAD -- data/golden/")
+
+
+@pytest.mark.skipif(not (ROOT / "data" / "golden" / "golden_labelled.csv").exists(),
+                    reason="no golden set")
+def test_golden_set_has_no_missing_thread_flags():
+    """Regression: `is_thread_start` was written for some rows and not others.
+
+    Two symptoms, both misleading: metrics crashed with 'Cannot mask with
+    non-boolean array containing NA', and before that the NaN rows were
+    silently counted as mid-thread, reporting 156 mid-thread fragments when
+    the real number was 16.
+    """
+    gold = pd.read_csv(ROOT / "data" / "golden" / "golden_labelled.csv")
+    if "is_thread_start" not in gold:
+        pytest.skip("column not present")
+    assert gold["is_thread_start"].isna().sum() == 0
+
+
+@pytest.mark.skipif(not (ROOT / "data" / "golden" / "golden_labelled.csv").exists(),
+                    reason="no golden set")
+def test_label_provenance_is_recorded():
+    """Headline metrics must be separable from AI-assisted labels. If this
+    column goes missing, metrics.py silently reports them blended."""
+    gold = pd.read_csv(ROOT / "data" / "golden" / "golden_labelled.csv")
+    assert "labelled_by" in gold, "label provenance column missing"
+    assert gold["labelled_by"].isna().sum() == 0
+    assert (gold["labelled_by"] == "human").sum() > 0

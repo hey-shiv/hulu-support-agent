@@ -67,19 +67,36 @@ def intent_block(df: pd.DataFrame, title: str) -> None:
 def main() -> None:
     df = pd.read_csv(ROOT / "reports" / "predictions.csv")
     n = len(df)
-    print(f"n = {n} human-labelled test examples")
+    if "labelled_by" in df:
+        counts = df["labelled_by"].value_counts().to_dict()
+        parts = ", ".join(f"{v} {k}" for k, v in sorted(counts.items()))
+        print(f"n = {n} evaluation examples ({parts})")
+    else:
+        print(f"n = {n} evaluation examples")
     if "is_thread_start" in df:
-        n_open = int(df["is_thread_start"].sum())
+        n_open = int(df["is_thread_start"].astype(str).str.lower().isin(["true", "1"]).sum())
         print(f"    {n_open} conversation openers / {n - n_open} mid-thread fragments")
 
     print("\n" + "=" * 74)
     print("INTENT CLASSIFICATION")
     print("=" * 74)
-    intent_block(df, "ALL EXAMPLES")
-    if "is_thread_start" in df and df["is_thread_start"].nunique() > 1:
-        intent_block(df[df["is_thread_start"]], "OPENERS ONLY  <- the defined task")
-        intent_block(df[~df["is_thread_start"]],
-                     "MID-THREAD ONLY  <- unclassifiable without prior turns")
+
+    # Headline numbers come from human-labelled rows only. The rest of the set
+    # was labelled with AI assistance (see data/golden/, column `labelled_by`),
+    # and scoring an AI system against AI-produced labels measures agreement
+    # between two models rather than correctness. Both are printed; only the
+    # human block is quoted as the result.
+    if "labelled_by" in df and df["labelled_by"].nunique() > 1:
+        human = df[df["labelled_by"] == "human"]
+        intent_block(human, "HUMAN-LABELLED ONLY  <- HEADLINE")
+        intent_block(df, "ALL EXAMPLES (incl. AI-assisted labels, secondary)")
+    else:
+        intent_block(df, "ALL EXAMPLES")
+    if "is_thread_start" in df:
+        opener = df["is_thread_start"].astype(str).str.lower().isin(["true", "1"])
+        if opener.nunique() > 1:
+            intent_block(df[opener], "OPENERS ONLY  <- the defined task")
+            intent_block(df[~opener], "MID-THREAD ONLY  <- needs prior turns")
 
     print("\nPER-INTENT (agent, all examples):")
     print(classification_report(df["true_intent"], df["agent_intent"],
@@ -168,6 +185,17 @@ def main() -> None:
               f"{accuracy_score(g['true_intent'], g['agent_intent']):>11.3f}")
     print("\n  'natural' is the only stratum that estimates production performance.")
     print("  The others are deliberately enriched and read worse by construction.")
+
+    if "labelled_by" in df and df["labelled_by"].nunique() > 1:
+        print("\n" + "=" * 74)
+        print("LABEL PROVENANCE")
+        print("=" * 74)
+        for src, g in df.groupby("labelled_by"):
+            print(f"  {src:<12}{len(g):>5} examples")
+        print("\n  Headline results above are computed on the human-labelled rows")
+        print("  only. The AI-assisted rows are reported as a secondary check:")
+        print("  measuring an AI system against AI-produced labels reflects")
+        print("  agreement between two models, not correctness.")
 
 
 if __name__ == "__main__":

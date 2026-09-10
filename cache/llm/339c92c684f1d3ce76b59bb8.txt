@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 1,
+  "relevance": 1,
+  "safety": 1,
+  "tone": 1,
+  "overall": 1,
+  "reasoning": "The reply invents a timeline and promises a resolution that is not supported by the historical evidence, and does not address the specific issue of the customer being unable to sign up for Live TV."
+}

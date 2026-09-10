@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 4,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply acknowledges the customer's issue but fails to provide a clear explanation or solution, which is a common shortcoming in the historical evidence."
+}

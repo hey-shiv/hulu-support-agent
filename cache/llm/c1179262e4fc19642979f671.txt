@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 2,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply does not provide any specific guidance or explanation for the customer's issue, and instead asks the customer to reach out again, which is not a helpful or efficient solution."
+}

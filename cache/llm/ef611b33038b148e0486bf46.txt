@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 4,
+  "reasoning": "The reply suggests steps that are consistent with the historical evidence, but it doesn't provide a specific link or resource for the customer to follow."
+}

@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply correctly references the 30-day check-in requirement, but fails to address the specific issue of the 'Home network' error and the customer's use of a hotspot."
+}

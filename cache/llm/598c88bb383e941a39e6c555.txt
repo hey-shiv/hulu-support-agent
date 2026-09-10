@@ -1,0 +1,1 @@
+{"reply": "Hey! Is the device hardwired? This helps ensure the app gets the best and most consistent connection possible. Let us know if there's any change after trying this out."}

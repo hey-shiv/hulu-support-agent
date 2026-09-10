@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply suggests steps and policies present in the historical evidence, but doesn't directly address the customer's question about iCarly's availability, and the tone is consistent with Hulu's support voice."
+}

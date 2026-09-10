@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly on point, but it doesn't explicitly reference the provided ticket number or the customer's previous messages, which might be seen as a minor oversight."
+}

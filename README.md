@@ -28,12 +28,12 @@ make reproduce
 ```
 
 `make reproduce` replays every model call from `cache/` and prints the full
-metrics table. No GPU, no API key, no network. Takes about 12 seconds.
+metrics table. No GPU, no API key, no network. Takes about 16 seconds.
 
 `make all` rebuilds everything from the raw CSV including model calls (~30 min,
 and needs `data/raw/twcs.csv` downloaded from Kaggle).
 
-`make test` runs 30 tests, including regression tests for the data-leakage bug
+`make test` runs 33 tests, including regression tests for the data-leakage bug
 described below.
 
 ---
@@ -61,7 +61,7 @@ incoming message
 | Reconstruct conversations | [`src/data_prep.py`](src/data_prep.py) | 1.26M exchanges from 2.8M tweets |
 | Pick the brand | [`scripts/select_brand.py`](scripts/select_brand.py) | deflection-rate table |
 | Discover intents | [`scripts/taxonomy.py`](scripts/taxonomy.py) | clusters → [`src/taxonomy.py`](src/taxonomy.py) |
-| Sample golden set | [`scripts/sample_golden.py`](scripts/sample_golden.py) | stratified sample (60 labelled) |
+| Sample golden set | [`scripts/sample_golden.py`](scripts/sample_golden.py) | 200 examples, 4 strata |
 | **Label (human)** | [`src/label_tui.py`](src/label_tui.py) | `data/golden/golden_labelled.csv` |
 | Build retrieval index | [`scripts/build_index.py`](scripts/build_index.py) | reference set, golden excluded |
 | Agent + baselines | [`scripts/run_eval.py`](scripts/run_eval.py) | `reports/predictions.csv` |
@@ -79,11 +79,14 @@ the one deliverable not completed -- see "Known gaps" below.
 
 Stated here rather than buried, because a reviewer will find them anyway:
 
-1. **Golden set is 60 examples, below the assignment's 150-250.** Human
-   labelling time was not available. Consequences are quantified in the report
-   rather than hidden: wide intervals, 7 escalation positives, 1 billing
-   example. An expanded stratified sampler is built and ready
-   (`make golden`, then `make label`).
+1. **Only 60 of the 200 evaluation examples were hand-labelled.** The
+   remaining 140 were labelled with AI assistance under time pressure. The
+   `labelled_by` column records this per row, and `scripts/metrics.py` reports
+   the human-labelled block as the headline with the AI-labelled block shown
+   separately — scoring an AI system against AI-produced labels measures
+   agreement between two models, not correctness. Consequences of the smaller
+   human set are quantified in the report: wide intervals, 7 escalation
+   positives, 1 billing example.
 2. **No per-item judge-human agreement.** `scripts/judge_validity.py` provides
    weaker substitute evidence (the judge recovers a quality ordering fixed by
    construction, and catches injected fabrications). Run
@@ -100,7 +103,7 @@ The thing most likely to make a reviewer distrust a submission like this is
 leakage, so it is stated plainly:
 
 - **The retrieval index excludes every golden example and every message from
-  the same conversation thread** (88 rows removed). An earlier build did not,
+  the same conversation thread** (233 rows removed). An earlier build did not,
   and querying with a test message returned that message at similarity
   `1.0000` — handing the agent the ground-truth reply as "evidence". Every
   reply-quality number from that build measured memorisation. Two tests in
@@ -117,7 +120,9 @@ leakage, so it is stated plainly:
   lives in a turn the agent never sees. Blending them into one number would
   understate the system on its defined task and overstate it on the harder
   one, so both are reported.
-- **Golden labels were produced by a human with no model suggestion shown.**
+- **Human golden labels were produced with no model suggestion shown**, so
+  the annotator was never anchored to the system being evaluated. The
+  AI-assisted rows are excluded from every headline number.
 
 ---
 

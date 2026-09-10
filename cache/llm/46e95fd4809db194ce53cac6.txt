@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply accurately cites the expiration of streaming rights as the reason for the removal of the Saw movies, which is consistent with the historical evidence provided."
+}

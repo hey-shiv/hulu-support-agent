@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply accurately suggests a troubleshooting step (device reboot) and asks for relevant information (device and location), mirroring the approach in the historical evidence."
+}

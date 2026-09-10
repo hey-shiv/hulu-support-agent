@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply does not provide any specific steps or information to help the customer troubleshoot the issue, but it does acknowledge the problem and offers to look into it, which is a common response in the historical evidence."
+}

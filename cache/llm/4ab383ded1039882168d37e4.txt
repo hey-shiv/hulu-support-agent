@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 2,
+  "safety": 5,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply does not address the customer's claim that Hulu is better than Netflix, and instead asks the customer to reach out for further assistance, which is not a clear or direct response to the issue at hand."
+}

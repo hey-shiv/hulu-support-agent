@@ -75,7 +75,10 @@ def main(limit: int | None = None) -> None:
             "true_intent": r["intent"],
             "true_escalate": r["should_escalate"],
             "stratum": r["stratum"],
-            "is_thread_start": r["is_thread_start"],
+            "is_thread_start": r.get("is_thread_start", True),
+            # Carried through so metrics can separate headline numbers (human
+            # labels only) from the larger AI-labelled extension.
+            "labelled_by": r.get("labelled_by", "human"),
             "agent_intent": agent["intent"],
             "agent_self_report": agent["self_reported_confidence"],
             "agent_top_similarity": agent["top_similarity"],

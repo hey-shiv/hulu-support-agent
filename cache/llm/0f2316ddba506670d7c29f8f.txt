@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply acknowledges the issue and offers to investigate, but doesn't provide any specific steps or troubleshooting links to help the customer resolve the problem."
+}

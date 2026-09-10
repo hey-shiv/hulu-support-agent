@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply closely mirrors the tone and language used in the historical evidence, and provides a clear and actionable solution to the customer's problem."
+}

@@ -1,0 +1,9 @@
+{
+  "grounding": 3,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is a good start, but it doesn't provide any specific steps or information to help the customer, which is a common pattern in the historical evidence."
+}

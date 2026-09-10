@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply provides a relevant and safe solution, but it doesn't directly address the customer's specific issue of only experiencing the problem on their phone, and it doesn't acknowledge the customer's mention of being able to watch on other devices."
+}

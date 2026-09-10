@@ -1,0 +1,1 @@
+{"reply": "Sorry to hear about the buffering! Which device are you using? Try rebooting your device and modem/router. Any improvement?"}

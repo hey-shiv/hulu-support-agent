@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is a good start, but it doesn't acknowledge the customer's frustration or offer a clear plan for resolution, which is a common thread in the historical evidence."
+}

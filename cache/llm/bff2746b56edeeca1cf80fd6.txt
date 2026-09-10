@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply suggests steps and policies present in the historical evidence, but doesn't directly reference the specific issue of the video being unavailable for the Jets game."
+}

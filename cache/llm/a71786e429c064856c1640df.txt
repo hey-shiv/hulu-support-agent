@@ -1,0 +1,1 @@
+{"reply": "It seems your husband's device hasn't checked in with a home network in 30 days. Mobile devices need to do this: https://t.co/Nvg3PZWd0j. Could you try connecting to a home network on his device?"}

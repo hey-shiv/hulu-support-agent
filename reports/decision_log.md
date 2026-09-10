@@ -79,7 +79,7 @@ grounding evidence.
 *Alternative:* exclude only exact-match messages.
 *Rejected because:* two turns of the same conversation describe the same
 incident, so a sibling turn leaks the same answer through a different row.
-Excluding by thread costs 88 rows out of 21,681 and closes the hole.
+Excluding by thread costs 233 rows out of 21,681 and closes the hole.
 
 **8. Golden set is stratified into four tagged populations, never blended into
 one headline number.**

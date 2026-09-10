@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 2,
+  "safety": 5,
+  "tone": 2,
+  "overall": 2,
+  "reasoning": "The reply does not address the customer's request for a second season of Future Man, and instead asks the customer to reach out for further investigation, which is not in line with the historical evidence."
+}

@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply acknowledges the customer's issue, but doesn't provide any specific information or explanation, which is a departure from the pattern of responses in the historical evidence."
+}

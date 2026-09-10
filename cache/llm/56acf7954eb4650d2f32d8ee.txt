@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is grounded in the evidence, but doesn't directly address the customer's concern about new profiles being created, which is a key issue in the historical context."
+}
