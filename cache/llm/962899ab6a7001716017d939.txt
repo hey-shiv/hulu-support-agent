@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 1,
+  "relevance": 5,
+  "safety": 1,
+  "tone": 5,
+  "overall": 2,
+  "reasoning": "The reply invents a refund and a 24-hour fix timeline, which are not supported by the historical evidence."
+}

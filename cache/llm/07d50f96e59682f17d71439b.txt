@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 1,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply correctly references a previous response, but makes an unsupported claim about issuing a full refund and fixing the issue within 24 hours."
+}

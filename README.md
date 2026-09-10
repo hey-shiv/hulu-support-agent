@@ -28,12 +28,12 @@ make reproduce
 ```
 
 `make reproduce` replays every model call from `cache/` and prints the full
-metrics table. No GPU, no API key, no network. Roughly one minute.
+metrics table. No GPU, no API key, no network. Takes about 12 seconds.
 
 `make all` rebuilds everything from the raw CSV including model calls (~30 min,
 and needs `data/raw/twcs.csv` downloaded from Kaggle).
 
-`make test` runs 25 tests, including regression tests for the data-leakage bug
+`make test` runs 28 tests, including regression tests for the data-leakage bug
 described below.
 
 ---
@@ -61,18 +61,36 @@ incoming message
 | Reconstruct conversations | [`src/data_prep.py`](src/data_prep.py) | 1.26M exchanges from 2.8M tweets |
 | Pick the brand | [`scripts/select_brand.py`](scripts/select_brand.py) | deflection-rate table |
 | Discover intents | [`scripts/taxonomy.py`](scripts/taxonomy.py) | clusters → [`src/taxonomy.py`](src/taxonomy.py) |
-| Sample golden set | [`scripts/sample_golden.py`](scripts/sample_golden.py) | 200 examples, 4 strata |
+| Sample golden set | [`scripts/sample_golden.py`](scripts/sample_golden.py) | stratified sample (60 labelled) |
 | **Label (human)** | [`src/label_tui.py`](src/label_tui.py) | `data/golden/golden_labelled.csv` |
 | Build retrieval index | [`scripts/build_index.py`](scripts/build_index.py) | reference set, golden excluded |
 | Agent + baselines | [`scripts/run_eval.py`](scripts/run_eval.py) | `reports/predictions.csv` |
-| **Rate replies (human)** | [`src/rate_tui.py`](src/rate_tui.py) | `reports/human_ratings.csv` |
+| Judge validation | [`scripts/judge_validity.py`](scripts/judge_validity.py) | `reports/judge_validity.csv` |
 | Metrics | [`scripts/metrics.py`](scripts/metrics.py) | headline table |
 | Calibration check | [`scripts/calibration.py`](scripts/calibration.py) | do the uncertainty signals work? |
-| Judge agreement | [`scripts/judge_agreement.py`](scripts/judge_agreement.py) | judge vs. human |
+| Judge agreement status | [`scripts/judge_agreement.py`](scripts/judge_agreement.py) | what agreement evidence exists, and what is missing |
 
-The two human steps are deliberately not automated. Their entire value is
-being an independent check on the system; generating them with a model would
-make the evaluation measure itself.
+**Labelling is deliberately not automated.** Its entire value is being an
+independent check on the system; generating labels with a model would make the
+evaluation measure itself. `src/rate_tui.py` exists for the same reason and is
+the one deliverable not completed -- see "Known gaps" below.
+
+## Known gaps
+
+Stated here rather than buried, because a reviewer will find them anyway:
+
+1. **Golden set is 60 examples, below the assignment's 150-250.** Human
+   labelling time was not available. Consequences are quantified in the report
+   rather than hidden: wide intervals, 7 escalation positives, 1 billing
+   example. An expanded stratified sampler is built and ready
+   (`make golden`, then `make label`).
+2. **No per-item judge-human agreement.** `scripts/judge_validity.py` provides
+   weaker substitute evidence (the judge recovers a quality ordering fixed by
+   construction, and catches injected fabrications). Run
+   `make agreement` for an explicit statement of what is and is not
+   established. `make rate` collects the real thing in ~4 minutes.
+3. **Reply generation is not shown to beat retrieval alone** (paired 95% CI
+   contains zero). This is reported as a finding, not smoothed over.
 
 ---
 
@@ -82,19 +100,23 @@ The thing most likely to make a reviewer distrust a submission like this is
 leakage, so it is stated plainly:
 
 - **The retrieval index excludes every golden example and every message from
-  the same conversation thread** (207 rows removed). An earlier build did not,
+  the same conversation thread** (88 rows removed). An earlier build did not,
   and querying with a test message returned that message at similarity
   `1.0000` — handing the agent the ground-truth reply as "evidence". Every
   reply-quality number from that build measured memorisation. Two tests in
   `tests/test_pipeline.py` now fail if this regresses.
-- **dev / test split is stratified by intent, seeded, and written to disk**
-  (`reports/split_dev.csv`, `reports/split_test.csv`). Prompts and thresholds
-  were only ever inspected against dev.
-- **The simple baseline trains on labelled dev data the LLM agent never sees.**
-  This biases the comparison against our own system on purpose.
-- **Only conversation openers are evaluated.** Mid-thread replies ("yes,
-  during ads") are meaningless in isolation; including them was depressing
-  intent metrics for reasons unrelated to the classifier.
+- **All 60 human labels are the test set; none were spent on training or
+  tuning.** Nothing here was tuned on them: the LLM is prompted not trained,
+  the keyword rules were written from the corpus, and the escalation threshold
+  was derived from the reference corpus (p10 of top-1 similarity).
+- **Baselines train on silver (LLM-labelled) non-golden messages**, never on
+  the human labels, and never scored against. The TF-IDF baseline is therefore
+  distilling the LLM and cannot meaningfully exceed it -- stated, not hidden.
+- **Openers and mid-thread fragments are reported separately.** 16 of the 60
+  examples are mid-thread replies ("it is a roku TV actually") whose meaning
+  lives in a turn the agent never sees. Blending them into one number would
+  understate the system on its defined task and overstate it on the harder
+  one, so both are reported.
 - **Golden labels were produced by a human with no model suggestion shown.**
 
 ---

@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 5,
+  "safety": 1,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply claims to have issued a full refund and fixed the issue within 24 hours, but there is no evidence in the historical data to support these claims."
+}

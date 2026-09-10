@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 1,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 2,
+  "reasoning": "The reply acknowledges the customer's frustration, but fails to provide any specific steps or solutions to address the issue, which is a departure from the historical evidence."
+}

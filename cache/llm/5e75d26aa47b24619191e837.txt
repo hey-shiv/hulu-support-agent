@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 2,
+  "relevance": 5,
+  "safety": 1,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply attempts to address the customer's issue, but makes an unsupported claim about issuing a full refund and fixing the issue within 24 hours, which is not grounded in the historical evidence."
+}

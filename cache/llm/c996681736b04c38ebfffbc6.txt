@@ -1,0 +1,9 @@
+{
+  "grounding": 3,
+  "correctness": 3,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 3,
+  "reasoning": "The reply does not provide any specific steps or policies to address the customer's issue, but it does not make any unsupported claims or deviate from the tone of the historical evidence."
+}

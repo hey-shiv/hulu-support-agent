@@ -82,9 +82,11 @@ incoming message
       +--> escalate? -----------> auto-handle | escalate + reason code
 ```
 
-Escalation fires on the first of: sensitive intent (billing/account) →
-unclassifiable (`other`) → weak evidence (top-1 similarity < 0.80) →
-low self-report → fabricated claim detected in the draft.
+Escalation fires on the first matching rule: sensitive intent
+(billing/account) → unclassifiable (`other`) → weak evidence (top-1
+similarity < 0.80) → low self-report. Separately, a fabricated claim detected
+in the drafted reply **overrides** whatever that chain decided — a reply that
+invents an account action is never safe to auto-send regardless of intent.
 
 ---
 
@@ -224,36 +226,52 @@ receives. That biases the comparison against our own system deliberately.
 
 Reply-quality numbers come from an LLM judge (llama3.1) scoring replies from a
 different model family (qwen2.5), so it is not grading its own style. That
-helps but proves nothing, so the judge was tested two ways.
+helps but proves nothing, so the judge was tested directly.
 
-**Discrimination test** (`scripts/judge_validity.py`, 25 held-out exchanges,
-no human time). Each real exchange scored in three variants:
+**What the assignment asks for and what is missing.** The brief asks for
+evidence of how well the judge agrees with a human. **Per-item human ratings
+were not collected.** That is a real gap. What follows is weaker evidence,
+labelled as such throughout, and `scripts/judge_agreement.py` prints an
+explicit statement of the gap rather than quietly substituting this for it.
+
+**Graded degradation test** (`scripts/judge_validity.py`, 25 held-out
+exchanges x 4 variants = 100 judge calls, no human labour). Each real exchange
+is scored in four variants whose quality ordering is fixed by construction:
 
 | Variant | grounding | correctness | relevance | safety | tone | overall |
 |---|---:|---:|---:|---:|---:|---:|
-| real Hulu reply | 5.00 | 5.00 | 5.00 | 5.00 | 5.00 | 5.00 |
-| generic apology | 3.04 | 3.48 | 4.80 | 5.00 | 4.44 | 3.56 |
-| real reply + invented refund/timeline | 1.72 | 1.52 | 5.00 | **1.04** | 3.72 | 2.36 |
+| real Hulu reply | 5.00 | 5.00 | 5.00 | 5.00 | 5.00 | **5.00** |
+| same reply, actionable step removed | 4.36 | 4.36 | 4.52 | 4.84 | 4.68 | **4.48** |
+| generic apology | 2.68 | 3.32 | 4.84 | 5.00 | 4.48 | **3.32** |
+| real reply + invented refund/timeline | 1.92 | 1.56 | 4.68 | **1.00** | 3.68 | **2.16** |
 
-All three checks pass: real replies beat generic non-answers, and a fluent,
-on-topic reply carrying an invented refund is punished to **1.04/5 on safety**.
-That is the failure a single "quality" score waves through, and the safety
-dimension catches it.
+**Spearman rho between the known ordering and the judge's score: -0.829
+(p < 0.0001, n = 100). Pairwise ordering accuracy: 113/150 = 75%.**
 
-**Two honest problems this same table reveals:**
+All three discrimination checks pass. The judge ranks a genuine human reply
+above a generic non-answer, notices the *subtle* case where a reply keeps its
+tone but loses its actionable content (5.00 -> 4.48), and drives safety to the
+floor (1.00) on an injected fabrication — the failure a single "quality" score
+waves through.
 
-1. **`relevance` does not work.** Spread across three wildly different reply
-   qualities is **0.20** (5.00 / 4.80 / 5.00). It contributes nothing and
-   should be replaced, not reported as if it measured something.
+**Three honest problems this same table exposes:**
+
+1. **`relevance` barely works.** Spread across four wildly different reply
+   qualities is 0.48 (5.00 / 4.52 / 4.84 / 4.68) — it even rates the
+   fabricated reply 4.68. It contributes almost nothing and should be replaced.
 2. **Ceiling effect on good replies.** Real human replies score a flat 5.00 on
    every dimension. The judge separates good from bad but may not discriminate
-   *among* good replies — which is exactly what comparing our agent to a strong
-   baseline requires.
+   *among* good replies — which is exactly what comparing our agent to a
+   strong baseline requires, and is consistent with the agent-vs-copy-nearest
+   comparison in §10 failing its significance test.
+3. **These variants differ obviously.** Real replies from two systems differ
+   subtly. Recovering a constructed ordering at rho = -0.83 does not establish
+   that the judge would agree with a person about whether a particular real
+   reply is a 4 or a 5.
 
-**Human agreement** (`scripts/judge_agreement.py`): pending — 21 blind human
-ratings, roughly 4 minutes of work, run via `make rate`. Until that exists,
-every judge-derived number in §10 should be read as a **ranking signal only**,
-not as an absolute quality level.
+**Practical consequence, applied throughout §10:** judge scores are treated as
+a **ranking signal across systems**, never as an absolute quality level, and
+small judge gaps are tested for significance rather than reported as wins.
 
 ---
 
@@ -456,11 +474,13 @@ the single most misleading thing in this report. Both appear in §10.
    entire system — money — is measured on n=1. We can make no claim about
    billing performance at all.
 
-6. **Judge-derived reply scores currently have no human anchor** (§9), and the
-   judge shows a ceiling effect on good replies plus one dimension
-   (`relevance`, spread 0.20) that measures nothing. The agent scores 5.00 on
-   three of six dimensions -- at the ceiling, where the judge has already been
-   shown not to discriminate.
+6. **Judge-derived reply scores have no per-item human anchor.** The judge
+   recovers a constructed quality ordering well (rho = -0.83), but that is not
+   the same as agreeing with a person on a real, ambiguous reply. It also
+   shows a ceiling effect (real replies score a flat 5.00) and one dimension,
+   `relevance`, that rates a reply containing an invented refund 4.68/5. The
+   agent scores 5.00 on three of six dimensions -- sitting exactly where the
+   judge has been shown not to discriminate.
 
 7. **The person who built the system also wrote the labels and the ratings.**
    Blinding reduces this; it does not remove it.
@@ -502,14 +522,19 @@ Ordered by what the evaluation above says is actually broken:
    and 5, which are the three biggest.
 2. **Double-label 50 examples blind, a day apart**, for a human agreement
    ceiling. Every accuracy claim is uninterpretable without it.
-3. **Replace the `relevance` judge dimension** — measured spread 0.20, it does
-   nothing. Probe the ceiling effect with deliberately near-miss replies.
-4. **Pass conversation context** for mid-thread messages, converting failure
-   mode 1 from "out of scope" into a solved case.
-5. **Ablate retrieval** (k=0 vs k=1 vs k=3): does grounding actually earn its
+3. **Collect per-item human ratings** (~21 blind ratings, tooling already
+   built: `make rate`). This is the one assignment deliverable not met, and
+   it is the cheapest of these to close.
+4. **Replace the `relevance` judge dimension** — it rates a reply carrying an
+   invented refund 4.68/5. Probe the ceiling effect with deliberately
+   near-miss replies rather than obvious degradations.
+5. **Pass conversation context** for mid-thread messages, converting failure
+   mode 1 from "out of scope" into a solved case — worth 0.487 -> 0.673
+   macro-F1 on the blended set.
+6. **Ablate retrieval** (k=0 vs k=1 vs k=3): does grounding actually earn its
    place, or would the LLM score similarly with none? Currently unmeasured,
    and it is the central claim of the system.
-6. **Cost curve for escalation** — sweep the evidence threshold and plot
+7. **Cost curve for escalation** — sweep the evidence threshold and plot
    automation rate against missed-escalation rate, so the operating point is
    chosen from an explicit cost ratio rather than a percentile.
 

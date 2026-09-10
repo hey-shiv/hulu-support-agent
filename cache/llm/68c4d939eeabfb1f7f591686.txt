@@ -1,0 +1,9 @@
+{
+  "grounding": 5,
+  "correctness": 5,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 5,
+  "reasoning": "The reply is a direct copy of a previous response, ensuring that it is grounded in the historical evidence and maintains the same tone and voice as the Hulu support team."
+}
