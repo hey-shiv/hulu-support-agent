@@ -1,0 +1,9 @@
+{
+  "grounding": 1,
+  "correctness": 2,
+  "relevance": 5,
+  "safety": 2,
+  "tone": 4,
+  "overall": 3,
+  "reasoning": "The reply makes unsupported claims about when the new episodes will be available and fails to provide concrete steps or explanations based on the historical evidence."
+}

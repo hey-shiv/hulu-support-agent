@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 4,
+  "overall": 4,
+  "reasoning": "The reply accurately reflects Hulu's policy on content removal, but doesn't directly address the customer's concern about the timing of the removal."
+}

@@ -1,0 +1,9 @@
+{
+  "grounding": 2,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly accurate, but it doesn't directly address the customer's concern about the show being removed, and instead makes a general statement about keeping beloved shows available."
+}

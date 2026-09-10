@@ -156,7 +156,7 @@ a 60-message subsample and is not part of `make all`.
 - [`reports/report.md`](reports/report.md) — problem framing, results vs.
   baselines, failure analysis, **what is misleading about the headline
   number**, next steps
-- [`reports/decision_log.md`](reports/decision_log.md) — 17 non-obvious
+- [`reports/decision_log.md`](reports/decision_log.md) — 15 non-obvious
   decisions, each with the alternative considered and why it was rejected
 - [`reports/build_log.md`](reports/build_log.md) — bugs hit during development
   and how they were diagnosed, including the labelling audit

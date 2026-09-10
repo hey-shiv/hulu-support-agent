@@ -1,0 +1,9 @@
+{
+  "grounding": 3,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is a generic apology and request for more information, but it doesn't directly address the customer's specific issue with the app crashing every 25-30 minutes."
+}

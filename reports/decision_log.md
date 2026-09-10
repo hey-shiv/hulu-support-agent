@@ -23,26 +23,25 @@ by definition has a parent, so "no match" never needs handling.
 requires scanning the full 2.8M-row table per message, and most customer
 messages have no reply at all.
 
-**3. Ten intents, hand-built from clusters rather than taken from them.**
+**3. Ten intents, hand-built from clusters rather than taken from them, with
+an explicit `other` class kept in.**
 *Reason:* TF-IDF+KMeans over 21k messages put 51% of everything into one
 shapeless cluster and made another cluster that was simply the show name
-"Rick and Morty". Vocabulary clustering groups by shared words, not shared
+"Rick and Morty" -- vocabulary clustering groups by shared words, not shared
 meaning. The clusters informed the taxonomy; reading messages produced the
 categories the clustering could not see (billing, account access, feature
-requests).
-*Alternative:* use the 10 clusters directly as the label set.
-*Rejected because:* "Rick and Morty" is a topic, not an intent, and a
-51%-of-everything class makes per-class metrics meaningless.
+requests). `other` was kept as a real tenth class rather than dropped, since
+forcing every message into one of nine substantive classes converts "I don't
+know" into a confident wrong answer -- exactly the failure the escalation
+policy exists to prevent. `other` also triggers escalation.
+*Alternative:* use the 10 KMeans clusters directly as the label set, with no
+catch-all class.
+*Rejected because:* "Rick and Morty" is a topic, not an intent, a
+51%-of-everything class makes per-class metrics meaningless, and a taxonomy
+with no escape hatch hides exactly the messages the system should be least
+confident about.
 
-**4. Kept an explicit `other` class.**
-*Reason:* Forces the system to have somewhere to put messages it genuinely
-cannot categorise, and makes that visible in metrics instead of hidden inside
-a wrong confident label. `other` also triggers escalation.
-*Alternative:* nine substantive classes, forcing every message into one.
-*Rejected because:* it converts "I don't know" into a confident wrong answer,
-which is exactly the failure the escalation policy exists to prevent.
-
-**5. Escalation is a cost-asymmetric decision with four distinct triggers, not
+**4. Escalation is a cost-asymmetric decision with four distinct triggers, not
 one boolean.**
 *Reason:* Sensitive intent (money/account), unclassifiable intent, weak
 retrieval evidence, and a detected fabricated claim are independent failure
@@ -51,9 +50,9 @@ fails toward escalation, because a needless handoff costs one person's time
 while a wrong automated answer about someone's money can cost far more.
 *Alternative:* a single confidence score with one threshold.
 *Rejected because:* it conflates "what is this about" with "how sure am I",
-and the measurement in #6 showed the confidence half carries little signal.
+and the measurement in #5 showed the confidence half carries little signal.
 
-**6. Escalation gates on measured retrieval evidence, not the model's
+**5. Escalation gates on measured retrieval evidence, not the model's
 self-reported confidence.**
 *Reason:* The first version gated on the confidence number the LLM emits in
 its own JSON, threshold 0.6. Measurement across the test set: the model only
@@ -69,7 +68,7 @@ report the final number.
 correctness rather than assuming either works. Self-report is retained only as
 a weak last check, and the report states what it is.
 
-**7. Retrieval index excludes the golden set AND every message from the same
+**6. Retrieval index excludes the golden set AND every message from the same
 conversation thread.**
 *Reason:* An earlier build indexed the entire corpus including the evaluation
 examples. Verified consequence: querying with a test message returned that
@@ -81,7 +80,7 @@ grounding evidence.
 incident, so a sibling turn leaks the same answer through a different row.
 Excluding by thread costs 233 rows out of 21,681 and closes the hole.
 
-**8. Golden set is stratified into four tagged populations, never blended into
+**7. Golden set is stratified into four tagged populations, never blended into
 one headline number.**
 *Reason:* `natural` (random, the only slice that predicts production),
 `rare_boost` (even across clusters, so rare intents have a measurable
@@ -92,7 +91,7 @@ per-class score), `escalation_sensitive` (billing/account/fraud language),
 example. The highest-cost decision in the system was being measured on a
 sample of one.
 
-**9. Evaluation restricted to conversation openers.**
+**8. Evaluation restricted to conversation openers.**
 *Reason:* 16 of the first 60 golden examples were mid-thread customer replies
 ("It is usually during ads, yes.") whose meaning lives in a previous turn the
 agent never sees. They are unclassifiable in isolation and were depressing
@@ -103,16 +102,21 @@ describes (classify an incoming message) and adds context-management
 complexity that the evaluation would then be measuring instead. Documented as
 a real limitation and a one-more-week item.
 
-**10. The simple baseline is given labelled training data the agent never gets.**
-*Reason:* TF-IDF + logistic regression needs labels to exist. It trains on the
-30% dev split; the LLM agent trains on nothing.
-*Alternative:* an untrained keyword-matching baseline, or training the
-baseline on fewer examples.
-*Rejected because:* it biases the comparison against our own system, which is
-the honest direction. A deliberately weak baseline cannot answer whether the
-LLM earns its complexity.
+**9. The simple baseline is given labelled training data the agent never gets,
+and none of it comes from the golden set.**
+*Reason:* TF-IDF + logistic regression needs labels to exist; it trains on
+400 silver (LLM-labelled) non-golden messages, never on the human labels used
+to score anything. The LLM agent is prompted, not trained, on any of it.
+*Alternative:* hold back a slice of the golden set as a training/dev split for
+the baseline, or an untrained keyword-matching baseline only.
+*Rejected because:* spending scarce human labels on baseline training would
+have cost real evaluation examples for no benefit -- silver labels are free
+and keep every one of the 200 human labels in the test set. Giving the
+baseline any training data the LLM never gets biases the comparison against
+our own system, which is the honest direction; a deliberately untrained
+baseline alone cannot answer whether the LLM earns its complexity.
 
-**11. Judge model is a different family from the generator.**
+**10. Judge model is a different family from the generator.**
 *Reason:* Replies from qwen2.5, scored by llama3.1. A judge sharing lineage
 with the generator is prone to preferring its own stylistic habits.
 *Alternative:* use the same model for both, or a single stronger hosted model
@@ -120,27 +124,26 @@ for both roles.
 *Rejected because:* same-model judging is the most common way an LLM-judge
 result becomes unfalsifiable, and running locally makes the separation free.
 
-**12. Judge scores five defined dimensions, not one overall number.**
+**11. Judge scores five defined dimensions, not one overall number, and its
+trustworthiness is tested rather than assumed.**
 *Reason:* grounding, correctness, relevance, safety, tone -- each with a
-definition specific enough that two readers would score alike. Grounding and
+definition specific enough that two readers would score alike; grounding and
 safety exist because they are the failure modes a fluent-sounding wrong reply
-passes on any single "quality" score.
-*Alternative:* one 1-5 quality rating.
+passes on any single "quality" score. Trustworthiness was then tested rather
+than asserted: `src/rate_tui.py` is built for blind per-item human ratings
+(rater sees neither the producing system nor the judge's score), and where
+that was not completed in time, `scripts/judge_validity.py`'s graded
+degradation test substitutes weaker but real evidence, disclosed as such
+rather than presented as the real thing.
+*Alternative:* one 1-5 quality rating, with judge scores reported as the
+reply-quality result on their own authority.
 *Rejected because:* a confident, well-written reply that invents a refund
-policy scores well on "quality" and catastrophically on "safety". Collapsing
-them hides exactly the error that matters most.
+policy scores well on "quality" and catastrophically on "safety" --
+collapsing the dimensions hides exactly the error that matters most. An LLM
+score is also not evidence until something anchors it; whatever the agreement
+number turns out to be, it is reported, including if it is poor or missing.
 
-**13. Judge trustworthiness is measured against blind human ratings, not
-asserted.**
-*Reason:* The human rater sees the customer message and the reply with the
-producing system and the judge's score both hidden, so the rating is
-independent.
-*Alternative:* report judge scores as the reply-quality result.
-*Rejected because:* an LLM score is not evidence until something anchors it.
-Whatever the agreement number turns out to be, it is reported -- including if
-it is poor.
-
-**14. Golden labels are human-made, with no model suggestion ever displayed.**
+**12. Golden labels are human-made, with no model suggestion ever displayed.**
 *Reason:* The labelling tool shows the message and the taxonomy, nothing else.
 *Alternative:* pre-fill a model prediction for the annotator to accept or
 correct -- far faster.
@@ -148,7 +151,7 @@ correct -- far faster.
 than they would unprompted, which would make the golden set a measurement of
 the model rather than an independent check on it.
 
-**15. Retrieval + prompting, no fine-tuning.**
+**13. Retrieval + prompting, no fine-tuning.**
 *Reason:* 21.7k exchanges from one brand, with the grounding requirement being
 "reply the way this brand historically did". Retrieval satisfies that
 directly, is inspectable (every reply keeps the exchanges it was grounded in),
@@ -158,7 +161,7 @@ and updates instantly when the corpus changes.
 the ability to show *why* a reply was produced, and cost far more to iterate
 on -- with no evidence it would beat retrieval at this corpus size.
 
-**16. Everything runs locally with every call cached to disk.**
+**14. Everything runs locally with every call cached to disk.**
 *Reason:* Zero marginal cost per experiment, deterministic (`temperature=0`,
 fixed seed), and `make reproduce` replays the full result set from cache with
 no model calls -- which is what makes the 15-minute reproduction claim honest.
@@ -166,7 +169,7 @@ no model calls -- which is what makes the 15-minute reproduction claim honest.
 *Rejected because:* it would make reproduction depend on a reviewer's API key
 and budget, and would tempt using one vendor for both generation and judging.
 
-**17. A suspiciously low evaluation result was investigated before being
+**15. A suspiciously low evaluation result was investigated before being
 reported, not written up as a finding.**
 *Reason:* expanding the golden set from 60 to 200 examples initially produced
 macro-F1 0.222, down from 0.487 on the smaller set. That drop was plausible

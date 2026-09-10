@@ -43,7 +43,8 @@ input message) before they reach the prompt, and explicitly instruct
 **4. Held-out intent accuracy came back low (0.40 agent, 0.15 for both
 baselines) -- investigated rather than accepted at face value.**
 Inspected every agent/true-label disagreement in `predictions.csv` by hand
-(see `report.md` Section 3 for the full breakdown). Found five real,
+(see `report.md` section 11, "Failure analysis," for the current version of
+this exercise). Found five real,
 explainable patterns rather than random noise: messages sampled mid-thread
 that lack the context a human labeller had access to when reading the whole
 exchange; a genuinely fuzzy `general_complaint` boundary (including one
@@ -189,5 +190,5 @@ the corrected set: macro-F1 0.606, accuracy 63.0% -- higher than either the
 first batch alone (0.487) or the corrupted full set (0.222), and now with
 adequate per-class sample sizes to trust the `billing_charge` (n=18) and
 `account_access` (n=17) numbers specifically, which is the entire reason the
-second batch was drawn. See `decision_log.md` entry 17 and `report.md`
+second batch was drawn. See `decision_log.md` entry 15 and `report.md`
 section 4 for the reporting consequences of this.

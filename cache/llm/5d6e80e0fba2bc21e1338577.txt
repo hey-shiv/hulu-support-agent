@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply suggests investigating the gift card application, which is consistent with the historical evidence, but it doesn't provide a clear step for the customer to take, unlike the examples in the evidence."
+}

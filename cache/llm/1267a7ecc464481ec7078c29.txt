@@ -1,0 +1,1 @@
+{"reply": "We're sorry to hear you're experiencing issues with frozen picture and unstable resolution on Live TV. Your current internet speed of 5-6 Mbps might be affecting the quality. Please ensure your internet connection is stable, and consider checking your network settings or contacting your internet service provider for assistance."}

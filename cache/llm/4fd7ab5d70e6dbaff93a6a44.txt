@@ -1,0 +1,9 @@
+{
+  "grounding": 4,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply suggests adjusting the watchlist, but doesn't provide a clear link or explanation for how to do so, unlike the historical evidence."
+}

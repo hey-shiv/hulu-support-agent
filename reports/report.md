@@ -15,22 +15,15 @@ labelled personally, no model suggestion ever shown during labelling.
 agent's lead over both simple baselines is statistically established —
 intervals do not overlap.
 
-**This number went through three versions before landing here, and the
-middle one is the most instructive part of this report.** A first, smaller
-draw of 60 examples gave macro-F1 0.487. Expanding to a properly stratified
-200 — adding the billing/account and adversarial cases the small draw had
-almost none of — initially *collapsed* the apparent result to 0.222,
-suggesting the system was far weaker than first measured. Investigating why,
-before trusting that number, found the real cause: a labelling-session data
-error had corrupted roughly 100 of the 140 new labels (evidenced concretely
-in §4 and §14) — not a model weakness at all. Correcting them by re-reading
-every message against the taxonomy definitions produced the 0.606 result
-reported here, now backed by adequate sample sizes on every intent, including
-the two that matter most (`billing_charge` n=18, `account_access` n=17). The
-full account, including exactly how the corruption was found, is in §4 and is
-this project's real answer to "what is misleading about my headline number" —
-not a hypothetical caution, but a documented instance of catching and
-correcting exactly that failure mode during the work itself.
+**This number went through three versions, and the middle one is the most
+instructive part of this report.** A first 60-example draw gave macro-F1
+0.487. Expanding to a stratified 200 initially *collapsed* the result to
+0.222 — before an audit found the real cause was a labelling-session data
+error, not a model weakness (§4). Correcting it gives the 0.606 reported here,
+now backed by adequate samples on every intent, including the two that matter
+most (`billing_charge` n=18, `account_access` n=17). §4 is this project's
+real, documented answer to "what is misleading about my headline number,"
+not a hypothetical.
 
 **Findings that still matter, on the corrected data:**
 
@@ -130,34 +123,21 @@ example and its whole conversation thread (233 rows). Two tests fail if this
 regresses.
 
 **The labelling data-quality bug — the most consequential thing found in this
-project, and the reason the headline number changed twice.** After hand-
-labelling 60 examples carefully, a second labelling pass covering 140 more
-examples was completed quickly under time pressure. Evaluating against it
-produced macro-F1 0.222 — implausibly low given the first batch's 0.487, and
-suspicious on its face. Investigating by re-reading the actual `billing_charge`
-labels against their message text found labels like `billing_charge` assigned
-to *"Are the new Christmas Movies going to be on?"* and *"Does anyone like the
-new interface?"* — messages with no relationship to billing at all. Auditing
-every one of the 140 second-batch labels the same way found **101 of 140 (72%)
-were wrong**, concentrated in exactly the pattern a mis-clicked or
-misread label session produces: plausible-looking but content-mismatched
-category assignments running across many rows in sequence, most severely
-affecting `playback_error` (used as a catch-all default in the corrupted
-labels — 8 genuinely `account_access` messages alone were mislabelled into
-it) and `content_availability`.
+project.** A second labelling pass over 140 new examples, done quickly under
+time pressure, produced macro-F1 0.222 — implausibly low against the first
+batch's 0.487. Re-reading the `billing_charge` labels against their text found
+`billing_charge` assigned to *"Are the new Christmas Movies going to be on?"*
+and similarly unrelated messages. Auditing all 140 the same way found **101
+of 140 (72%) mismatched to their content** — the pattern a drifting label
+session produces, concentrated in `playback_error` (used as a de facto
+catch-all) and `content_availability`.
 
-Every one of the 101 corrections was made by re-reading the message against
-the taxonomy definitions in §5, the same standard used for the original 60.
-The before/after golden set, the correction script, and the full list of
-changed rows are preserved in this repository's history — this is not
-asserted, it is auditable.
-
-**Consequence for every number in this report:** all results here are
-computed on the corrected 200. The 0.222 figure never represented anything
-real about the system; it measured labelling-session data-entry noise. Left
-uncaught, it would have been reported as a genuine finding that the system's
-performance had been badly overestimated, when the actual defect was upstream
-of the model entirely.
+Every correction was made by re-reading the message against the §5
+definitions, the same standard used for the original 60. Both versions of the
+golden set are preserved in git history — this is auditable, not asserted.
+All results in this report use the corrected 200; the 0.222 figure measured
+labelling noise, not the system, and would have shipped as a false finding of
+badly-overestimated performance if not caught.
 
 **Other integrity measures.** All 200 golden labels made by one human, by
 hand, no model suggestion ever shown during labelling. Silver (LLM) labels
@@ -245,15 +225,13 @@ escalation judged per-message rather than mechanically derived from intent.
 ## 9. Is the judge trustworthy?
 
 Reply-quality numbers come from an LLM judge (llama3.1) scoring replies from a
-different model family (qwen2.5). That helps but proves nothing on its own,
-so the judge was tested directly.
+different model family (qwen2.5) — helpful, but not proof, so it was tested
+directly. **Per-item human ratings were not collected** — a real, stated gap;
+`scripts/judge_agreement.py` says so plainly rather than substituting weaker
+evidence silently.
 
-**Per-item human ratings were not collected** — a real, stated gap.
-`scripts/judge_agreement.py` states this plainly rather than substituting
-weaker evidence silently.
-
-**Graded degradation test** (`scripts/judge_validity.py`, 25 exchanges × 4
-constructed-quality variants = 100 judge calls):
+**Graded degradation test instead** (`scripts/judge_validity.py`, 25
+exchanges × 4 constructed-quality variants = 100 judge calls):
 
 | Variant | grounding | correctness | relevance | safety | tone | overall |
 |---|---:|---:|---:|---:|---:|---:|
@@ -292,13 +270,13 @@ n = 200 hand-labelled examples, corrected as described in §4. Reproduce with
 | Simple (TF-IDF, silver-trained) | 0.355 | [0.288, 0.409] | 0.440 |
 | **Agent (LLM)** | **0.606** | [0.513, 0.673] | 0.630 |
 
-The agent's lead over both simple baselines is statistically established —
-no interval overlap.
+No interval overlap — the agent's lead over both simple baselines is
+statistically established.
 
-**By message type:** openers (n=184) 0.645 [0.555, 0.710], accuracy 0.663 —
-the defined task; mid-thread (n=16) 0.190 [0.033, 0.336], accuracy 0.250,
-where TF-IDF (0.240) beats the agent — a bag-of-words model has no strong
-opinion to be confidently wrong with when context is missing.
+**By message type:** openers (n=184) 0.645 [0.555, 0.710]; mid-thread (n=16)
+0.190 [0.033, 0.336], where TF-IDF (0.240) beats the agent — a bag-of-words
+model has no strong opinion to be confidently wrong with when context is
+missing.
 
 **Per-intent (agent):**
 
@@ -327,10 +305,9 @@ directly consequential for §11.
 | Simple (sensitive intents) | 0.35 | 0.93 | 0.65 | 0.02 |
 | **Agent** (intent+evidence+claims) | 0.54 | 0.55 | 0.46 | 0.25 |
 
-**On `billing_charge` specifically — the category the policy is built to
-protect — only 2 of 18 (11%) are missed**, because the upstream classifier is
-now reliable there. Which rule fired: `auto_handle` 129, `sensitive_intent`
-39, `weak_evidence` 24, `unclassifiable` 8.
+**On `billing_charge` specifically, only 2 of 18 (11%) are missed** —
+the upstream classifier is now reliable there. Rules fired: `auto_handle` 129,
+`sensitive_intent` 39, `weak_evidence` 24, `unclassifiable` 8.
 
 ### Reply quality (LLM judge, 1–5)
 
@@ -354,9 +331,9 @@ copying the most similar historical one; retrieval is doing the work.
 | escalation_sensitive | 35 | 0.469 | 0.657 |
 | rare_boost | 40 | 0.423 | 0.550 |
 
-`natural` is the only stratum that estimates production performance — macro-F1
-0.592, close to the overall headline, a reassuring sign the sampling is not
-distorting the picture.
+`natural` is the only stratum estimating production performance — its 0.592
+sits close to the overall headline, a reassuring sign the sampling is not
+distorting the result.
 
 ### Do the uncertainty signals work? (`scripts/calibration.py`)
 
@@ -391,73 +368,63 @@ be test-set tuning (§13).
 
 74 misclassifications remain in the corrected 200 (accuracy 63%).
 
-### 1. `live_tv_sports_issue` bleeding into `playback_error` and `content_availability` — the largest remaining cluster
+### 1. `live_tv_sports_issue` bleeding into `playback_error`/`content_availability` — the largest cluster
 
-15 of 30 true cases misrouted (9 to `playback_error`, 6 to
-`content_availability`). **Example:** *"live is so poor right now. Chopped
-playback, not holding video quality"* → predicted `playback_error`.
-**Example:** *"NBC in Cincinnati 'temporarily unavailable'. Makes it
-difficult to watch Sunday Night Football"* → predicted `content_availability`.
-**Why:** these messages genuinely carry both a playback/availability symptom
-and a live-context cue, and the model weighs the symptom vocabulary more
-heavily than the context. **Type:** taxonomy design — the classes overlap by
-construction. **Fix:** state precedence explicitly ("if the content is live,
-live wins") or merge the classes.
+15 of 30 true cases misrouted (9, 6). **Example:** *"live is so poor right
+now. Chopped playback"* → predicted `playback_error`. **Example:** *"NBC in
+Cincinnati 'temporarily unavailable'... Sunday Night Football"* → predicted
+`content_availability`. **Why:** these messages carry both a symptom and a
+live-context cue, and the model weighs the symptom more heavily. **Type:**
+taxonomy design — the classes overlap by construction. **Fix:** state
+precedence ("if live, live wins") or merge the classes.
 
 ### 2. `content_availability` ↔ `feature_request`, symmetric confusion
 
-4 errors each direction. **Example (→ feature_request):** a message about a
-missing title reads like "add this show," ambiguous between "it's not there
-yet" (availability) and "please offer this" (feature). **Type:** genuine
-boundary ambiguity. **Fix:** a clearer operational rule for "is this asking
-about existing content or requesting a new capability."
+4 errors each direction. **Example (→ feature_request):** a missing-title
+message reads as ambiguous between "not there yet" and "please add this."
+**Type:** genuine boundary ambiguity. **Fix:** an operational rule for
+"existing content" vs. "new capability."
 
 ### 3. Missing conversational context
 
-Error rate on mid-thread fragments: 75% (12/16), versus 34% on openers.
+75% error rate on mid-thread fragments (12/16) vs. 34% on openers.
 **Example:** *"it is a roku TV actually"* → true `other`, predicted
-`device_app_issue`; its referent ("it") is in a turn the agent never
-receives. **Type:** task definition, not model. **Fix:** pass prior turns, or
-keep restricting evaluation to openers.
+`device_app_issue`; its referent lives in a turn the agent never sees.
+**Type:** task definition, not model. **Fix:** pass prior turns, or keep
+restricting evaluation to openers.
 
 ### 4. Device problems read as playback errors
 
 4 errors. **Example:** *"Update sucks and now we can't even watch"* → true
 `device_app_issue`, predicted `playback_error`. **Why:** "can't watch" reads
-as a playback symptom even when the actual fault is app-specific. **Type:**
-model limitation. **Fix:** few-shot examples distinguishing "can't watch
-because of a stream fault" from "can't watch because the app itself is
-broken."
+as a stream symptom even when the fault is app-specific. **Type:** model
+limitation. **Fix:** few-shot examples distinguishing stream faults from
+app-itself faults.
 
-### 5. `praise_chatter` recall is low despite perfect precision
+### 5. `praise_chatter`: low recall, perfect precision
 
-Recall 0.57 (4/7 caught), precision 1.00 — when the model says
-`praise_chatter` it is always right, but it misses several. **Example:**
-sarcastic messages ("Eww! Hulu's community managers have to work on Saturday
-nights! ... Blink twice if you need rescued!") read as complaints on the
-surface. **Type:** model limitation on irony specifically. **Fix:** low
-priority — misrouting a joke to a human costs almost nothing.
+Recall 0.57 (4/7), precision 1.00 — when predicted it is always right, but it
+misses several. **Example:** sarcastic messages ("Blink twice if you need
+rescued!") read as complaints on the surface. **Type:** irony specifically.
+**Fix:** low priority — misrouting a joke to a human costs almost nothing.
 
 ---
 
 ## 12. What is misleading about my headline number?
 
 **0. The headline number is only trustworthy because a labelling error was
-caught and fixed — and that process is itself the finding.** Before
-correction, the same evaluation pipeline produced macro-F1 0.222 on this
-exact 200-example set — a number that looked like sobering evidence the
-system was much weaker than a smaller sample suggested. It was not; it was
-evidence that 72% of one labelling session's outputs were wrong. **Any report
-that presents a single evaluation number without describing how its ground
-truth was produced and checked is asking to be trusted on faith.** This
-project can instead point to the specific, auditable correction (§4, §14).
+caught and fixed — that process is itself the finding.** Before correction,
+this exact 200-example set gave macro-F1 0.222 — looking like sobering
+evidence the system was weaker than a smaller sample suggested. It was not;
+it was evidence that 72% of one labelling session's outputs were wrong.
+**A report presenting one number without describing how its ground truth was
+produced and checked is asking to be trusted on faith**; this one can point
+to the specific, auditable correction instead (§4, §14).
 
-**1. One annotator, one pass (per label), no measured inter-annotator
-ceiling — even after correction.** The correction fixed content-label
-mismatches (a message clearly about billing labelled as something else); it
-did not, and could not, resolve genuinely ambiguous boundary cases like
-`general_complaint` vs. a specific intent, which remain a single person's
-judgment throughout.
+**1. One annotator, no measured inter-annotator ceiling, even after
+correction.** The fix caught content-label mismatches; it could not resolve
+genuinely ambiguous boundaries like `general_complaint` vs. a specific
+intent, which remain one person's judgment throughout.
 
 **2. Which population a number describes.** Macro-F1 is 0.606 across all 200,
 0.645 on openers (the defined task), 0.592 on the `natural` stratum alone.

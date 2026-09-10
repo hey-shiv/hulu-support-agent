@@ -1,0 +1,9 @@
+{
+  "grounding": 3,
+  "correctness": 4,
+  "relevance": 5,
+  "safety": 5,
+  "tone": 5,
+  "overall": 4,
+  "reasoning": "The reply is mostly accurate, but it doesn't provide any specific information about the issue with MNF, which is a key aspect of the customer's question."
+}
